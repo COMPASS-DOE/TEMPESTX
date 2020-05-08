@@ -19,17 +19,23 @@ dat %>%
   dat_plot
 
 dat_plot %>%
-  ggplot(aes(Treatment, CO2_Flux)) +
+  bind_rows(mutate(dat_plot, Plot = "Combined")) ->
+  dat_plot_all
+
+dat_plot_all %>% 
+  ggplot(aes(Treatment, CO2_Flux, color = Treatment == "Control")) +
   geom_boxplot() + geom_point() +
+  scale_color_discrete(guide = FALSE) +
   facet_wrap(~Plot) ->
   p
 
 print(p)
 ggsave("20200415_CO2.png")
 
-dat_plot %>%
-  ggplot(aes(Treatment, CH4_Flux)) +
+dat_plot_all %>%
+  ggplot(aes(Treatment, CH4_Flux, color = Treatment == "Control")) +
   geom_boxplot() + geom_point() +
+  scale_color_discrete(guide = FALSE) +
   facet_wrap(~Plot) ->
   p
 
