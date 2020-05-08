@@ -4,17 +4,20 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 theme_set(theme_bw())
+library(lubridate)
 
-dat <- read_tsv("7810_data/TEMPESTX_20200415.txt")
+files <- list.files("7810_data/", pattern = "*.txt", full.names = TRUE)
 
-collars <- read_csv("design/collar_map.csv")
+dat <- bind_rows(lapply(files, read_tsv, 
+                        col_names = c("Timestamp", "Obs", "Port",
+                                      "CO2_Flux", "Collar", "CH4_Flux"), 
+                        col_types = "_Tdcddd_",
+                        skip = 1))
+
+collars <- read_csv("design/collar_map.csv", col_types = "dcdc")
 
 dat %>%
-  select(-X8,
-         Collar = `File Name`,
-         CO2_Flux = Exp_Flux,
-         CH4_Flux = `Exp_Flux[2]`) %>%
-  filter(CO2_Flux > 0) %>%
+  filter(CO2_Flux != 0.0 & CH4_Flux != 0.0) %>%
   left_join(collars, by = "Collar") ->
   dat_plot
 
@@ -23,24 +26,35 @@ dat_plot %>%
   dat_plot_all
 
 dat_plot_all %>% 
-  ggplot(aes(Treatment, CO2_Flux, color = Treatment == "Control")) +
-  geom_boxplot() + geom_point() +
-  scale_color_discrete(guide = FALSE) +
+  group_by(Plot, Treatment, yday(Timestamp)) %>% 
+  summarise(Timestamp = mean(Timestamp),
+            CO2_Flux_sd = sd(CO2_Flux), 
+            CO2_Flux = mean(CO2_Flux),
+            CH4_Flux_sd = sd(CH4_Flux),
+            CH4_Flux = mean(CH4_Flux)) ->
+  dat_plot_all_means
+
+dat_plot_all_means %>% 
+  ggplot(aes(Timestamp, CO2_Flux, color = Treatment, size = Treatment == "Control")) +
+  geom_errorbar(aes(ymin = CO2_Flux - CO2_Flux_sd, ymax = CO2_Flux + CO2_Flux_sd)) +
+  geom_line() +
+  scale_size_manual(guide = FALSE, values = c(0.5, 2)) +
   facet_wrap(~Plot) ->
   p
 
 print(p)
-ggsave("20200415_CO2.png")
+ggsave("over_time_co2.png")
 
-dat_plot_all %>%
-  ggplot(aes(Treatment, CH4_Flux, color = Treatment == "Control")) +
-  geom_boxplot() + geom_point() +
-  scale_color_discrete(guide = FALSE) +
+dat_plot_all_means %>% 
+  ggplot(aes(Timestamp, CH4_Flux, color = Treatment, size = Treatment == "Control")) +
+  geom_errorbar(aes(ymin = CH4_Flux - CH4_Flux_sd, ymax = CH4_Flux + CH4_Flux_sd)) +
+  geom_line() +
+  scale_size_manual(guide = FALSE, values = c(0.5, 2)) +
   facet_wrap(~Plot) ->
   p
 
 print(p)
-ggsave("20200415_CH4.png")
+ggsave("over_time_ch4.png")
 
 
 
