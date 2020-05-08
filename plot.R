@@ -1,4 +1,6 @@
 # Boom!
+# Read and plot 7810 data from Anya Hopple's TEMPEST exclusion plots
+# BBL May 2020
 
 library(readr)
 library(dplyr)
@@ -55,6 +57,3 @@ dat_plot_all_means %>%
 
 print(p)
 ggsave("over_time_ch4.png")
-
-
-
