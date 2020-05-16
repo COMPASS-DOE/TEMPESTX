@@ -16,7 +16,7 @@ dat <- bind_rows(lapply(files, read_tsv,
                         col_types = "_Tdcddd_",
                         skip = 1))
 
-collars <- read_csv("design/collar_map.csv", col_types = "dcdc")
+collars <- read_csv("design/collar_map.csv", col_types = "dcdci")
 
 dat %>%
   filter(CO2_Flux != 0.0 & CH4_Flux != 0.0) %>%
