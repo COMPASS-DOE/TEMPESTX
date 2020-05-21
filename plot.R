@@ -45,7 +45,7 @@ dat_plot_all_means %>%
   p
 
 print(p)
-ggsave("over_time_co2.png")
+ggsave("over_time_co2.png", width = 9, height = 6)
 
 dat_plot_all_means %>% 
   ggplot(aes(Timestamp, CH4_Flux, color = Treatment, size = Treatment == "Control")) +
@@ -56,4 +56,4 @@ dat_plot_all_means %>%
   p
 
 print(p)
-ggsave("over_time_ch4.png")
+ggsave("over_time_ch4.png", width = 9, height = 6)
