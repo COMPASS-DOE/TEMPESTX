@@ -7,6 +7,7 @@ library(dplyr)
 library(ggplot2)
 theme_set(theme_bw())
 library(lubridate)
+library(tidyr)
 
 files <- list.files("7810_data/", pattern = "*.txt", full.names = TRUE)
 
@@ -57,3 +58,15 @@ dat_plot_all_means %>%
 
 print(p)
 ggsave("over_time_ch4.png", width = 9, height = 6)
+
+
+dat_plot %>% 
+  gather(Gas, Flux, CO2_Flux, CH4_Flux) %>% 
+  ggplot(aes(Timestamp, Flux, group = Collar, color = Plot)) +
+  geom_line() + 
+  geom_point() +
+  facet_wrap(~ Treatment + Gas, scales = "free_y", ncol = 2 ) ->
+  p
+
+print(p)
+ggsave("over_time_collars.png", width = 9, height = 6)
