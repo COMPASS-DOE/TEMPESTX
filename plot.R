@@ -19,8 +19,12 @@ dat <- bind_rows(lapply(files, read_tsv,
 
 collars <- read_csv("design/collar_map.csv", col_types = "dcdci")
 
+if(any(is.na(dat$Collar))) {
+  warning("We have empty collars!")
+}
+
 dat %>%
-  filter(CO2_Flux != 0.0 & CH4_Flux != 0.0) %>%
+  filter(CO2_Flux != 0.0, CH4_Flux != 0.0, !is.na(Collar)) %>%
   left_join(collars, by = "Collar") ->
   dat_plot
 
@@ -42,6 +46,7 @@ dat_plot_all_means %>%
   geom_errorbar(aes(ymin = CO2_Flux - CO2_Flux_sd, ymax = CO2_Flux + CO2_Flux_sd)) +
   geom_line() +
   scale_size_manual(guide = FALSE, values = c(0.5, 2)) +
+  coord_cartesian(ylim = c(0, 40)) +
   facet_wrap(~Plot) ->
   p
 
@@ -53,6 +58,7 @@ dat_plot_all_means %>%
   geom_errorbar(aes(ymin = CH4_Flux - CH4_Flux_sd, ymax = CH4_Flux + CH4_Flux_sd)) +
   geom_line() +
   scale_size_manual(guide = FALSE, values = c(0.5, 2)) +
+  coord_cartesian(ylim = c(-6, 2)) +
   facet_wrap(~Plot) ->
   p
 
@@ -70,3 +76,4 @@ dat_plot %>%
 
 print(p)
 ggsave("over_time_collars.png", width = 9, height = 6)
+
