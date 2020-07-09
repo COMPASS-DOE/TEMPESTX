@@ -8,6 +8,7 @@ library(ggplot2)
 theme_set(theme_bw())
 library(lubridate)
 library(tidyr)
+library(scales)
 
 files <- list.files("7810_data/", pattern = "*.txt", full.names = TRUE)
 
@@ -25,6 +26,7 @@ if(any(is.na(dat$Collar))) {
 
 dat %>%
   filter(CO2_Flux != 0.0, CH4_Flux != 0.0, !is.na(Collar)) %>%
+  mutate(Year = year(Timestamp), DOY = yday(Timestamp)) %>% 
   left_join(collars, by = "Collar") ->
   dat_plot
 
@@ -76,4 +78,34 @@ dat_plot %>%
 
 print(p)
 ggsave("over_time_collars.png", width = 9, height = 6)
+
+dat_plot %>% 
+  filter(Treatment == "Control") %>% 
+  group_by(Year, DOY, Plot) %>% 
+  summarise(CO2_Flux_CONTROL = mean(CO2_Flux), CH4_Flux_CONTROL = mean(CH4_Flux)) ->
+  control_data
+
+dat_plot %>% 
+  left_join(control_data, by = c("Year", "DOY", "Plot")) %>% 
+  mutate(CO2_treatment_diff = (CO2_Flux - CO2_Flux_CONTROL) / CO2_Flux_CONTROL,
+         CH4_treatment_diff = (CH4_Flux - CH4_Flux_CONTROL) / CH4_Flux_CONTROL) %>% 
+  group_by(Year, DOY, Plot, Treatment) %>% 
+  summarise(Timestamp = mean(Timestamp),
+            CO2_treatment_diff = mean(CO2_treatment_diff),
+            CH4_treatment_diff = mean(CH4_treatment_diff)) ->
+  diffs
+
+p <- ggplot(diffs, aes(Timestamp, CO2_treatment_diff, color = Treatment)) + 
+  geom_line() + 
+  facet_wrap(~Plot) +
+  scale_y_continuous(labels = scales::percent)
+print(p)
+ggsave("treatment_diff_co2.png", width = 9, height = 6)
+p <- ggplot(diffs, aes(Timestamp, CH4_treatment_diff, color = Treatment)) + 
+  geom_line() + 
+  facet_wrap(~Plot) +
+  scale_y_continuous(labels = scales::percent) +
+  coord_cartesian(ylim = c(-5, 5))
+print(p)
+ggsave("treatment_diff_ch4.png", width = 9, height = 6)
 
