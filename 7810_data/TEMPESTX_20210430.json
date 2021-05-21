@@ -4,15 +4,6 @@
 "datasets":  [ 
 { "4":
 	{
-		"remark": "",
-		"reps":
-			{
-			}
-	}
-}
-, 
-{ "4a":
-	{
 		"remark": "Redo",
 		"reps":
 			{
