@@ -58,18 +58,9 @@ for(gas in unique(dat_smry$Flux)) {
     coord_cartesian(xlim = c(ymd_hm("2021-08-24 12:00"), ymd("2021-08-27 17:00"))) +
     ggtitle(gas)
   
-  ggsave(paste0(gas, ".pdf"))
+  ggsave(paste0(gas, ".pdf"), width = 8, height = 5)
 }
 
-
-ggplot(dat, aes(Timestamp, CO2_flux, color = Plot, group = Collar)) + 
-  geom_point() +
-  annotate("rect", xmin = ymd_hm("2021-08-25 07:10"),
-           xmax = ymd_hm("2021-08-25 17:00"), 
-           ymin = -Inf, ymax = Inf,
-           fill = "lightblue", alpha = 0.3) +
-  facet_wrap(~Treatment) +
-  coord_cartesian(xlim = c(ymd_hm("2021-08-24 12:00"), ymd("2021-08-27 17:00")))
 
 
 trts <- tibble(Port = 1:4, Treatment = c("Control", "Disturbance", "1 µm", "45 µm"))
