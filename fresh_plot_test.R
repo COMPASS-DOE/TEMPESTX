@@ -58,7 +58,7 @@ for(gas in unique(dat_smry$Flux)) {
              xmax = ymd_hm("2021-08-25 17:00"), 
              ymin = -Inf, ymax = Inf,
              fill = "lightblue", alpha = 0.3) +
-    coord_cartesian(xlim = c(ymd_hm("2021-08-24 12:00"), ymd_hm("2021-08-27 17:00"))) +
+#    coord_cartesian(xlim = c(ymd_hm("2021-08-24 12:00"), ymd_hm("2021-09-03 17:00"))) +
     ggtitle(gas)
   
   ggsave(paste0(gas, ".pdf"), width = 8, height = 5)
