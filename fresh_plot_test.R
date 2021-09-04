@@ -12,31 +12,34 @@ library(scales)
 
 collars <- read_csv("design/collar_map.csv", col_types = "dcdci")
 
-files <- "fresh_plot_test_data.txt"
+files <- list.files("7810_data/fresh_test/", pattern = "*.txt", full.names = TRUE)
 
-read_tsv(files) %>% 
-  select(Timestamp = Date_IV,
-         Collar = `File Name`,
-         Port = `Obs#`,
-         CO2 = Exp_Flux,
-         CH4 = `Exp_Flux[2]`) %>% 
+read_7810_data <- function(fn) {
+  read_tsv(fn, col_names = c("Timestamp", "Obs", "Port",
+                             "CO2", "Collar", "CH4"), 
+           col_types = "_Tdcddd_",
+           skip = 1) %>% 
+    mutate(File = basename(fn))
+}
+
+lapply(files, read_7810_data) %>% 
+  bind_rows() %>% 
+  mutate(Round = as.integer(as.factor(File))) %>% 
   filter(CO2 != 0.0) %>% 
   left_join(collars, by = "Collar") %>% 
   pivot_longer(c(CO2, CH4), names_to = "Flux") ->
   dat
-
-dat_processed <- read_csv("fresh_plot_dat_processed.csv")
 
 if(any(is.na(dat$Collar))) {
   warning("We have empty collars!")
 }
 
 # There's a -60 uptake for CH4 that's messing my graphs. Remove
-dat_processed <- filter(dat_processed, Flux == "CO2" | value > -50)
+dat <- filter(dat, Flux == "CO2" | value > -50)
 
-dat_processed %>% 
+dat %>% 
   filter(Plot != "Salt") %>% 
-  group_by(Round, Plot, Treatment, Flux) %>% 
+  group_by(File, Round, Plot, Treatment, Flux) %>% 
   summarise(Timestamp = mean(Timestamp),
             value_sd = sd(value),
             value = mean(value)) ->
@@ -55,13 +58,17 @@ for(gas in unique(dat_smry$Flux)) {
              xmax = ymd_hm("2021-08-25 17:00"), 
              ymin = -Inf, ymax = Inf,
              fill = "lightblue", alpha = 0.3) +
-    coord_cartesian(xlim = c(ymd_hm("2021-08-24 12:00"), ymd("2021-08-27 17:00"))) +
+    coord_cartesian(xlim = c(ymd_hm("2021-08-24 12:00"), ymd_hm("2021-08-27 17:00"))) +
     ggtitle(gas)
   
   ggsave(paste0(gas, ".pdf"), width = 8, height = 5)
 }
 
 
+
+stop("All done")
+
+# Code to process new 8250/7810/7820 data
 
 trts <- tibble(Port = 1:4, Treatment = c("Control", "Disturbance", "1 µm", "45 µm"))
 exp8250_files <- list.files("8250_data/", "dense_summary", full.names = TRUE)

@@ -43,5 +43,6 @@ vignettes/*.pdf
 
 # Outputs
 *.png
+*.pdf
 
 .Rproj.user
