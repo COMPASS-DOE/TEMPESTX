@@ -104,9 +104,13 @@ ggplot(exp8250, aes(Timestamp, value, color = Treatment)) +
 ggsave("8250_test.pdf")
 
 exp8250 %>% 
-  filter(Timestamp > ymd_hm("2021-08-24 12:00")) %>% 
+  filter(Timestamp > ymd_hm("2021-09-07 12:00")) %>% 
   ggplot(aes(Timestamp, value, color = Treatment)) +
   facet_grid(Gas~Treatment, scales = "free") + 
   geom_point() +
-  theme(axis.text.x = element_text(angle = 90))
+  theme(axis.text.x = element_text(angle = 90)) +
+  annotate("rect", xmin = ymd_hm("2021-09-09 07:00"),
+           xmax = ymd_hm("2021-09-09 16:30"), 
+           ymin = -Inf, ymax = Inf,
+           fill = "lightblue", alpha = 0.3)
 ggsave("8250_test_recent.pdf")
