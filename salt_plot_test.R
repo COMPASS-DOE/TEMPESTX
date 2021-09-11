@@ -36,6 +36,8 @@ if(any(is.na(dat$Collar))) {
 
 # There's a -60 uptake for CH4 that's messing my graphs. Remove
 dat <- filter(dat, Flux == "CO2" | value > -50)
+# There's a 80+ emission for CH4 that's messing my graphs. Remove
+dat <- filter(dat, Flux == "CO2" | value < 80)
 
 dat %>% 
   filter(Plot != "Fresh") %>% 
@@ -58,10 +60,32 @@ for(gas in unique(dat_smry$Flux)) {
              xmax = ymd_hm("2021-09-09 16:30"), 
              ymin = -Inf, ymax = Inf,
              fill = "lightblue", alpha = 0.3) +
-#    coord_cartesian(xlim = c(ymd_hm("2021-08-24 12:00"), ymd_hm("2021-09-03 17:00"))) +
+    #    coord_cartesian(xlim = c(ymd_hm("2021-08-24 12:00"), ymd_hm("2021-09-03 17:00"))) +
     ggtitle(gas)
   
   ggsave(paste0("salt_", gas, ".pdf"), width = 8, height = 5)
+  
+  dat %>% 
+    filter(Plot != "Fresh") %>% 
+    group_by(File, Round, Plot, Group, Treatment, Flux) %>% 
+    summarise(Timestamp = mean(Timestamp),
+              value_sd = sd(value),
+              value = mean(value)) ->
+    dat_group_smry
+  
+  ggplot(filter(dat_group_smry, Flux == gas), 
+         aes(Timestamp, value, color = Treatment)) + 
+    geom_point() +
+    geom_line() +
+    facet_grid(Plot~Group %% 4, scales = "free") +
+    annotate("rect", xmin = ymd_hm("2021-09-09 07:00"),
+             xmax = ymd_hm("2021-09-09 16:30"), 
+             ymin = -Inf, ymax = Inf,
+             fill = "lightblue", alpha = 0.3) +
+    ggtitle(paste(gas, "by group"))
+  
+  ggsave(paste0("salt_group_", gas, ".pdf"), width = 8, height = 5)
+  
 }
 
 
