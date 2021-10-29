@@ -28,14 +28,14 @@ files <- list.files("7810_data/", pattern = "*.txt", full.names = TRUE)
 
 readfn <- function(x) {
   dat <- read_tsv(x, 
-           # note we're dropping "Item" and a junk column at the end
-           # this is done by skipping their names, and specifying "_" type below
-           col_names = c("Item", "Timestamp", "Collar", "Obs", 
-                            "Flux_CO2", "Flux_CH4", "Soil_c", "Soil_m", "Soil_t", 
-                            "Length", "R2_CO2", "R2_CH4", "err", "junk"), 
-           col_types = "cTcinnnnninnic",
-           na = c("", "NA", "9999"), # soil probe NA is 9999
-           skip = 1)
+                  # note we're dropping "Item" and a junk column at the end
+                  # this is done by skipping their names, and specifying "_" type below
+                  col_names = c("Item", "Timestamp", "Collar", "Obs", 
+                                "Flux_CO2", "Flux_CH4", "Soil_c", "Soil_m", "Soil_t", 
+                                "Length", "R2_CO2", "R2_CH4", "err", "junk"), 
+                  col_types = "cTcinnnnninnic",
+                  na = c("", "NA", "9999"), # soil probe NA is 9999
+                  skip = 1)
   
   # Some of the files output from SoilFluxPro are structurally different :(
   # with one or more missing columns. Record this
@@ -146,6 +146,12 @@ Number of
 ## Fluxes over time
 
 ```{r}
-ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Treatment)) + geom_line() + facet_wrap(~paste(Group, "-", Plot))
+ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Treatment)) + 
+  geom_line() + 
+  facet_wrap(~paste(Plot, "-", Group))
+
+ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Plot)) + 
+  geom_line() + 
+  facet_wrap(~Treatment)
 ```
 
