@@ -17,7 +17,7 @@ library(tidyr)
 library(scales)
 ```
 
-## R Markdown
+## Introduction
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
@@ -31,21 +31,107 @@ readfn <- function(x) {
            # note we're dropping "Item" and a junk column at the end
            # this is done by skipping their names, and specifying "_" type below
            col_names = c("Item", "Timestamp", "Collar", "Obs", 
-                            "CO2_Flux", "CH4_Flux", "c", "m", "t", 
+                            "Flux_CO2", "Flux_CH4", "Soil_c", "Soil_m", "Soil_t", 
                             "Length", "R2_CO2", "R2_CH4", "err", "junk"), 
            col_types = "cTcinnnnninnic",
+           na = c("", "NA", "9999"), # soil probe NA is 9999
            skip = 1)
   
   # Some of the files output from SoilFluxPro are structurally different :(
   # with one or more missing columns. Record this
-  dat$file_structure_prob <- nrow(problems(dat))
-  dat
+  dat %>% 
+    mutate(file_structure_prob = nrow(problems(dat))) %>% 
+    select(-Item, -junk)
 }
 
-dat <- bind_rows(lapply(files, readfn), .id = "File")
+lapply(files, readfn) %>% 
+  bind_rows(.id = "File") %>% 
+  mutate(File = as.integer(File)) ->
+  dat
+
+datzero <- filter(dat, Flux_CO2 == 0)
+datneg <- filter(dat, Flux_CO2 < 0)
+daterr <- filter(dat, err > 0)
 ```
 
-# QA/QC
+## QA/QC
+
+### Bad collar numbers
+
+```{r}
+dat %>% 
+  filter(grepl("[a-z]", Collar)) %>% 
+  select(File, Collar) %>% 
+  distinct() %>% 
+  mutate(File = files[File]) %>% 
+  knitr::kable()
+
+# Merge with collar data
+collars <- read_csv("design/collar_map.csv", col_types = "ccdci")
+dat <- left_join(dat, collars, by = "Collar")
+```
+
+### Out-and-out errors
+
+Data0 (raw data) has `r nrow(dat)` observations.
+
+We have `r nrow(datzero)` observations with CO2 flux of zero. Removing.
+
+We have `r nrow(datneg)` observations with CO2 flux less than zero. Removing.
+
+We have `r nrow(daterr)` observations with LI-8100 error flags. Removing.
+
+```{r errors}
+dat %>% 
+  filter(Flux_CO2 > 0) %>% 
+  filter(err == 0) ->
+  dat1
+```
+
+Data1 has `r nrow(dat1)` observations (`r round(nrow(dat1) / nrow(dat) * 100, 1)`% of raw).
+
+### Model fit
+
+```{r fits}
+r2_min <- 0.5
+
+dat1_co2r2 <- filter(dat1, R2_CO2 < r2_min)
+dat1_ch4r2 <- filter(dat1, R2_CH4 < r2_min)
+```
+
+We have `r nrow(dat1_co2r2)` observations with CO2 fit R2 less than `r r2_min`. Not removing but FYI.
+
+We have `r nrow(dat1_ch4r2)` observations with CH4 fit R2 less than `r r2_min`. Not removing but FYI.
+
+### Outliers
+
+```{r qaqc-setup}
+q_probs <- c(0.005, 0.995)
+
+qnt <- function(x, p = q_probs) {
+  round(quantile(x, probs = p, na.rm = TRUE), digits = 3)
+}
+qnt_co2 <- qnt(dat1$Flux_CO2)
+qnt_ch4 <- qnt(dat1$Flux_CH4)
+bad_co2 <- !between(dat1$Flux_CO2, qnt_co2[1], qnt_co2[2])
+bad_ch4 <- !between(dat1$Flux_CH4, qnt_ch4[1], qnt_ch4[2])
+dat1$Flux_CO2[bad_co2] <- NA_real_
+dat1$Flux_CH4[bad_ch4] <- NA_real_
+```
+
+The [`r q_probs`] quantiles of `Flux_CO2` are `r qnt_co2`. Changing the `r sum(bad_co2)` values outside of this to NA.
+
+The [`r q_probs`] quantiles of `Flux_CH4` are `r qnt_ch4`. Changing the `r sum(bad_ch4)` values outside of this to NA.
+
+### Overview
+
+```{r}
+library(skimr)
+dat1 %>% 
+  select_if(is.numeric) %>% 
+  skim()
+```
+
 
 Number of 
 
@@ -56,3 +142,10 @@ Number of
 * Distribution of R2 values
 * Structural files
 * Records with Licor err values
+
+## Fluxes over time
+
+```{r}
+ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Treatment)) + geom_line() + facet_wrap(~paste(Group, "-", Plot))
+```
+
