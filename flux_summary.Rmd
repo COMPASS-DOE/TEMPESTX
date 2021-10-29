@@ -1,0 +1,58 @@
+---
+title: "flux_summary"
+author: "Ben"
+date: "10/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(readr)
+library(dplyr)
+library(ggplot2)
+theme_set(theme_bw())
+library(lubridate)
+library(tidyr)
+library(scales)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r read_files, warning=FALSE}
+files <- list.files("7810_data/", pattern = "*.txt", full.names = TRUE)
+
+readfn <- function(x) {
+  dat <- read_tsv(x, 
+           # note we're dropping "Item" and a junk column at the end
+           # this is done by skipping their names, and specifying "_" type below
+           col_names = c("Item", "Timestamp", "Collar", "Obs", 
+                            "CO2_Flux", "CH4_Flux", "c", "m", "t", 
+                            "Length", "R2_CO2", "R2_CH4", "err", "junk"), 
+           col_types = "cTcinnnnninnic",
+           skip = 1)
+  
+  # Some of the files output from SoilFluxPro are structurally different :(
+  # with one or more missing columns. Record this
+  dat$file_structure_prob <- nrow(problems(dat))
+  dat
+}
+
+dat <- bind_rows(lapply(files, readfn), .id = "File")
+```
+
+# QA/QC
+
+Number of 
+
+* Zero CO2 flux observations
+* CO2 flux outside of 95% envelope (currently = 0, 32.4)
+* CH4 flux outside of 95% envelope (currently = -5.7, 0.3)
+* Ditto for t, m, c
+* Distribution of R2 values
+* Structural files
+* Records with Licor err values
