@@ -145,9 +145,16 @@ The [`r q_probs`] quantiles of `Flux_CO2` are `r qnt_co2`. Changing the `r sum(b
 
 The [`r q_probs`] quantiles of `Flux_CH4` are `r qnt_ch4`. Changing the `r sum(bad_ch4)` values outside of this to NA.
 
-### Overview
+## Overview
 
-```{r}
+Something | Something else
+--------- | --------------
+First date | `r min(dat1$Timestamp)`
+Last date | `r max(dat1$Timestamp)`
+N (obs) | `r nrow(dat1)`
+N (rounds) | `r length(unique(dat1$File))`
+
+```{r smry}
 library(skimr)
 dat1 %>% 
   select_if(is.numeric) %>% 
