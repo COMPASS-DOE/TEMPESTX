@@ -24,7 +24,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r read_files, warning=FALSE}
-files <- list.files("7810_data/", pattern = "*.txt", full.names = TRUE)
+files <- list.files("7810_data/", pattern = "*.txt", full.names = TRUE, recursive = TRUE)
 
 readfn <- function(x) {
   dat <- read_tsv(x, 
@@ -143,9 +143,9 @@ Number of
 * Structural files
 * Records with Licor err values
 
-## Fluxes over time
+## Collar fluxes over time
 
-```{r}
+```{r collar-fluxes}
 ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Treatment)) + 
   geom_line() + 
   facet_wrap(~paste(Plot, "-", Group))
@@ -153,5 +153,149 @@ ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Treatment)) +
 ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Plot)) + 
   geom_line() + 
   facet_wrap(~Treatment)
+```
+
+## Treatment fluxes over time {.tabset}
+
+### CO2
+
+```{r trt-fluxes-co2}
+# TEMPEST flood test dates
+floods <- read_csv("design/flood_tests.csv", col_types = "cTT")
+floods$Timestamp <- NA_POSIXct_
+
+dat1 %>% 
+  group_by(File, Plot, Treatment) %>% 
+  summarise(Flux_CO2_sd = sd(Flux_CO2),
+            Flux_CO2 = mean(Flux_CO2),
+            Flux_CH4_sd = sd(Flux_CH4),
+            Flux_CH4 = mean(Flux_CH4),
+            Timestamp = mean(Timestamp),
+            .groups = "drop") ->
+  dat_trt
+
+# Relative to control
+dat1 %>% 
+  filter(Treatment == "Control") %>% 
+  rename(conCO2 = Flux_CO2, conCH4 = Flux_CH4) %>% 
+  select(File, Plot, Group, conCO2, conCH4) %>% 
+  # summarise the controls by plot only, not group; we don't want to lose
+  # entire group's measurements if the control is missing for some reason
+  group_by(File, Plot) %>% 
+  summarise(conCO2 = mean(conCO2, na.rm = TRUE),
+            conCH4 = mean(conCH4, na.rm = TRUE),
+            .groups = "drop") ->
+  controls
+dat1 %>% 
+  left_join(controls, by = c("File", "Plot")) %>% 
+  mutate(Flux_CO2 = Flux_CO2 - conCO2,
+         Flux_CH4 = Flux_CH4 - conCH4) %>% 
+  group_by(File, Plot, Treatment) %>% 
+  summarise(Flux_CO2_sd = sd(Flux_CO2),
+            Flux_CO2 = mean(Flux_CO2),
+            Flux_CH4_sd = sd(Flux_CH4),
+            Flux_CH4 = mean(Flux_CH4),
+            Timestamp = mean(Timestamp),
+            .groups = "drop") ->
+  dat_trt_rel
+
+flood_bands <- geom_rect(data = floods, color = "darkgrey", alpha = 0.5,
+                         aes(y = 0, xmin = Start, xmax = End, ymin = -Inf, ymax = Inf))
+flood_coords <- coord_cartesian(xlim = c(min(floods$Start) - 24 * 60 * 60 * 7,
+                                         max(floods$End) + 24 * 60 * 60 * 7))
+
+ggplot(dat_trt, aes(Timestamp, Flux_CO2, color = Treatment)) + 
+  geom_point(na.rm = TRUE) + geom_line() +
+  geom_errorbar(aes(ymin = Flux_CO2 - Flux_CO2_sd,
+                    ymax = Flux_CO2 + Flux_CO2_sd)) +
+  facet_grid(Plot~.) +
+  flood_bands
+
+last_plot() + flood_coords
+
+ggplot(dat_trt_rel, aes(Timestamp, Flux_CO2, color = Treatment)) + 
+  geom_point(na.rm = TRUE) + geom_line() +
+  geom_errorbar(aes(ymin = Flux_CO2 - Flux_CO2_sd,
+                    ymax = Flux_CO2 + Flux_CO2_sd)) +
+  facet_grid(Plot~.) +
+  ylab("Flux_CO2 (relative to control)") +
+  flood_bands
+
+last_plot() + flood_coords
+```
+
+### CH4
+
+```{r trt-fluxes-ch4}
+ggplot(dat_trt, aes(Timestamp, Flux_CH4, color = Treatment)) + 
+  geom_point(na.rm = TRUE) + geom_line() +
+  geom_errorbar(aes(ymin = Flux_CH4 - Flux_CH4_sd,
+                    ymax = Flux_CH4 + Flux_CH4_sd)) +
+  facet_grid(Plot~.) +
+  flood_bands
+
+last_plot() + flood_coords
+
+ggplot(dat_trt_rel, aes(Timestamp, Flux_CH4, color = Treatment)) + 
+  geom_point(na.rm = TRUE) + geom_line() +
+  geom_errorbar(aes(ymin = Flux_CH4 - Flux_CH4_sd,
+                    ymax = Flux_CH4 + Flux_CH4_sd)) +
+  facet_grid(Plot~.) +
+  ylab("Flux_CH4 (relative to control)") +
+  flood_bands
+
+last_plot() + flood_coords
+```
+
+## Temperature and moisture {.tabset}
+
+```{r t-vs-m}
+dat_tm <- filter(dat1, !is.na(Soil_t), !is.na(Soil_m), Soil_m > 0)
+dat_tm$Month <- month(dat_tm$Timestamp)
+ggplot(dat_tm, aes(Soil_t, Soil_m, color = Month)) + 
+  geom_point() + 
+  scale_color_gradient2(low = muted("blue"), 
+                        mid = "green", 
+                        high = muted("blue"), midpoint = 6.5)
+ggplot(dat_tm, aes(Soil_t, Soil_m, color = Plot, size = Flux_CO2)) +
+  geom_point(alpha = 0.25) 
+ggplot(dat_tm, aes(Soil_t, Soil_m, color = Plot, size = Flux_CH4)) +
+  geom_point(alpha = 0.25) 
+```
+
+### CO2
+
+```{r q10-co2}
+dat_co2 <- filter(dat_tm, !is.na(Flux_CO2))
+
+ggplot(dat_co2, aes(Soil_t, Flux_CO2, color = Treatment)) + 
+  geom_point(alpha = 0.2) +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", formula = y ~ x) + 
+  facet_grid(Plot~.)
+
+ggplot(dat_co2, aes(Soil_m, Flux_CO2, color = Treatment)) + 
+  geom_point(alpha = 0.2) +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2, raw = TRUE)) + 
+  facet_grid(Plot~.)
+```
+
+### CH4
+
+```{r q10-ch4}
+dat_ch4 <- filter(dat_tm, !is.na(Flux_CH4))
+
+ggplot(dat_ch4, aes(Soil_t, Flux_CH4, color = Treatment)) + 
+  geom_point(alpha = 0.2) +
+  #  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", formula = y ~ x) + 
+  facet_grid(Plot~.)
+
+ggplot(dat_ch4, aes(Soil_m, Flux_CH4, color = Treatment)) + 
+  geom_point(alpha = 0.2) +
+  # scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", formula = y ~ x) + 
+  facet_grid(Plot~.)
 ```
 
