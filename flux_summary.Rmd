@@ -328,13 +328,48 @@ ggplot(dat_tm, aes(Soil_t, Soil_m, color = Plot, size = Flux_CH4)) +
 
 ### CO2
 
-```{r q10-co2}
+Nonlinear model fits for 
+
+$f = R_{10} * Q10^{(T - 10) / 10}$
+
+```{r q10-models}
 dat_co2 <- filter(dat_tm, !is.na(Flux_CO2))
 
+# Fit nonlinear Q10 model
+predictions <- list()
+models <- list()
+summaries <- list()
+for(trt in unique(dat_co2$Treatment)) {
+  d <- filter(dat_co2, Treatment == trt)
+  m <- nls(Flux_CO2 ~ r10 * q10 ^ ((Soil_t - 10) / 10), 
+                     data = d, 
+                     start = list(r10 = 3,q10 = 2))
+  p <- tibble(Soil_t = seq(min(d$Soil_t), max(d$Soil_t), length.out = 20),
+              Treatment = trt)
+  p$Flux_CO2 <- predict(m, newdata = p)
+  predictions[[trt]] <- p
+  models[[trt]] <- m
+  summaries[[trt]] <- broom::tidy(m)
+}
+
+model_smry <- bind_rows(summaries, .id = "Treatment")
+
+# Table and graphs summarizing model fits
+knitr::kable(model_smry, digits = 3)
+ggplot(model_smry, aes(Treatment, estimate, color = Treatment)) +
+  geom_pointrange(aes(ymin = estimate - std.error, ymax = estimate + std.error)) +
+  facet_wrap(~term, scales = "free")
+predictions <- bind_rows(predictions, .id = "Treatment")
+ggplot(dat_co2, aes(Soil_t, Flux_CO2, color = Treatment)) +
+  geom_point(alpha = 0.1) +
+  geom_line(data = predictions)
+```
+
+```{r q10-co2}
 ggplot(dat_co2, aes(Soil_t, Flux_CO2, color = Treatment)) + 
   geom_point(alpha = 0.2) +
   scale_y_continuous(trans = "log10") +
-  geom_smooth(method = "lm", formula = y ~ x) + 
+  geom_smooth(method = "lm", formula = y ~ x) +
   facet_grid(Plot~.)
 
 ggplot(dat_co2, aes(Soil_m, Flux_CO2, color = Treatment)) + 
