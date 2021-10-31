@@ -490,34 +490,29 @@ ggplot(dat81, aes(Timestamp, Exp_Flux, color = Treatment)) +
 ### 7810-8100 comparison
 
 ```{r}
+# Round timestamp to nearest hour in each dataset, then merge
 dat81 %>% 
   mutate(Timestamp_rnd = round_date(Timestamp, "hour")) %>% 
-  select(Timestamp_rnd, Plot, Collar, Treatment, Exp_Flux, Lin_Flux) ->
+  select(Timestamp_rnd, Plot, Collar, Treatment,
+         LI8100_Exp_Flux = Exp_Flux, LI8100_Lin_Flux = Lin_Flux) ->
   dat81_rnd
-
 dat1 %>% 
   mutate(Timestamp_rnd = round_date(Timestamp, "hour")) %>% 
-  select(Timestamp_rnd, Plot, Collar, Treatment, Flux_CO2) %>% 
+  select(Timestamp_rnd, Plot, Collar, Treatment, LI7810_Flux = Flux_CO2) %>% 
   inner_join(dat81_rnd, by = c("Timestamp_rnd", "Plot", "Collar", "Treatment")) -> dat_combined
 
-ggplot(dat_combined, aes(Flux_CO2, Exp_Flux)) + 
+ggplot(dat_combined, aes(LI7810_Flux, LI8100_Exp_Flux)) + 
   geom_point(aes(color = Treatment), na.rm = TRUE) + 
   geom_abline() + 
   facet_wrap(~Plot, ncol = 2) + 
-  xlab("7810 flux") + 
-  ylab("8100 Exp_Flux") + 
   geom_smooth(method = "lm", na.rm = TRUE, 
               color = "black", linetype = 2, formula = y~x) +
   coord_fixed()
-ggplot(dat_combined, aes(Flux_CO2, Lin_Flux)) + 
+ggplot(dat_combined, aes(LI7810_Flux, LI8100_Lin_Flux)) + 
   geom_point(aes(color = Treatment), na.rm = TRUE) + 
   geom_abline() + 
   facet_wrap(~Plot, ncol = 2) + 
-  xlab("7810 flux") + 
-  ylab("8100 Lin_Flux") + 
   geom_smooth(method = "lm", na.rm = TRUE, 
               color = "black", linetype = 2, formula = y~x) +
   coord_fixed()
-
-  ```
-
+```
