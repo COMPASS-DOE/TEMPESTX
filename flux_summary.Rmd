@@ -486,3 +486,38 @@ ggplot(dat81, aes(Timestamp, Exp_Flux, color = Treatment)) +
   geom_point(na.rm = TRUE) + 
   facet_grid(Plot~ Year, scales = "free")
 ```
+
+### 7810-8100 comparison
+
+```{r}
+dat81 %>% 
+  mutate(Timestamp_rnd = round_date(Timestamp, "hour")) %>% 
+  select(Timestamp_rnd, Plot, Collar, Treatment, Exp_Flux, Lin_Flux) ->
+  dat81_rnd
+
+dat1 %>% 
+  mutate(Timestamp_rnd = round_date(Timestamp, "hour")) %>% 
+  select(Timestamp_rnd, Plot, Collar, Treatment, Flux_CO2) %>% 
+  inner_join(dat81_rnd, by = c("Timestamp_rnd", "Plot", "Collar", "Treatment")) -> dat_combined
+
+ggplot(dat_combined, aes(Flux_CO2, Exp_Flux)) + 
+  geom_point(aes(color = Treatment), na.rm = TRUE) + 
+  geom_abline() + 
+  facet_wrap(~Plot, ncol = 2) + 
+  xlab("7810 flux") + 
+  ylab("8100 Exp_Flux") + 
+  geom_smooth(method = "lm", na.rm = TRUE, 
+              color = "black", linetype = 2, formula = y~x) +
+  coord_fixed()
+ggplot(dat_combined, aes(Flux_CO2, Lin_Flux)) + 
+  geom_point(aes(color = Treatment), na.rm = TRUE) + 
+  geom_abline() + 
+  facet_wrap(~Plot, ncol = 2) + 
+  xlab("7810 flux") + 
+  ylab("8100 Lin_Flux") + 
+  geom_smooth(method = "lm", na.rm = TRUE, 
+              color = "black", linetype = 2, formula = y~x) +
+  coord_fixed()
+
+  ```
+
