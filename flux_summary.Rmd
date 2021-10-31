@@ -124,7 +124,7 @@ We have `r nrow(dat1_ch4r2)` observations with CH4 fit R2 less than `r r2_min`. 
 
 ### Outliers
 
-```{r qaqc-setup}
+```{r qaqc-outliers}
 q_region <- 0.99
 q_probs <- c((1 - q_region) / 2, 1 - (1 - q_region) / 2)
 
@@ -172,7 +172,9 @@ Notes to self - things to qa/qc:
 * File with structural issues
 * Records with Licor err values
 
-## Collar fluxes over time
+## Fluxes
+
+### Collar fluxes over time
 
 ```{r collar-fluxes}
 ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Treatment)) + 
@@ -184,9 +186,9 @@ ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Plot)) +
   facet_wrap(~Treatment)
 ```
 
-## Treatment fluxes over time {.tabset}
+### Treatment fluxes over time {.tabset}
 
-### CO2
+#### CO2
 
 ```{r trt-fluxes-co2}
 # TEMPEST flood test dates
@@ -283,7 +285,7 @@ ggplot(dat_trt_rel_cum_co2, aes(color = Treatment)) +
   ggtitle("Cumulative")
 ```
 
-### CH4
+#### CH4
 
 ```{r trt-fluxes-ch4}
 # Cumulative CH4
@@ -411,3 +413,76 @@ ggplot(dat_ch4, aes(Soil_m, Flux_CH4, color = Treatment)) +
   facet_grid(Plot~.)
 ```
 
+## LI-8100
+
+```{r read-8100}
+files81 <- list.files("8100_data/", pattern = "*.txt", full.names = TRUE, recursive = TRUE)
+
+read81 <- function(f) {
+  d <- read_tsv(f,
+                col_names = c("Serial", "Timestamp", "Obs", "Port", "Length", 
+                              "Exp_Flux", "Exp_R2", "Lin_Flux", "Lin_R2", 
+                              "Tcham", "V1", "V2", "V3", "V4"),
+                col_types = "cTiitddddddddd_",
+                skip = 1)
+  d$Filename <- basename(f)
+  d
+}
+lapply(files81, read81) %>% 
+  bind_rows() %>% 
+  separate(Filename, into = c("junk1", "Plot", "junk2"), sep = "_", remove = FALSE) %>% 
+  select(-junk1, -junk2) %>% 
+  filter(!is.na(Timestamp)) %>% 
+  mutate(Plot = paste0(substring(Plot, 1, 1), tolower(substring(Plot, 2)))) ->
+  dat81raw
+```
+
+We have `r nrow(dat81raw)` LI-8100 observations.
+
+### Potentially bad filenames
+
+```{r badnames-8100}
+dat81raw %>%
+  group_by(Filename, Serial, Plot) %>% 
+  summarise(Start = as.Date(min(Timestamp), na.rm = TRUE), 
+            End = as.Date(max(Timestamp), na.rm = TRUE),
+            .groups = "drop") %>% 
+  knitr::kable()
+```
+
+### Data summary
+
+```{r summary-8100}
+ltc_map <- read_csv("design/ltc_map.csv", col_types = "cdc")
+dat81raw %>% 
+  left_join(ltc_map, by = "Port") %>% 
+  left_join(collars, by = "Collar") %>% 
+  mutate(Year = year(Timestamp)) ->
+  dat81
+
+dat81 %>% 
+  group_by(Plot, Collar) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  knitr::kable()
+```
+
+### Outliers
+
+
+```{r qaqc-8100}
+qnt_co2 <- qnt(dat81$Exp_Flux)
+bad_co2 <- !between(dat81$Exp_Flux, qnt_co2[1], qnt_co2[2])
+dat81$Exp_Flux[bad_co2] <- NA_real_
+```
+
+Restrict data to `r q_region * 100`%.
+
+The [`r q_probs`] quantiles of `Exp_Flux` are `r qnt_co2`. Changing the `r sum(bad_co2, na.rm = TRUE)` values outside of this to NA.
+
+### Fluxes over time
+
+```{r fluxes-8100}
+ggplot(dat81, aes(Timestamp, Exp_Flux, color = Treatment)) + 
+  geom_point(na.rm = TRUE) + 
+  facet_grid(Plot~ Year, scales = "free")
+```
