@@ -190,10 +190,11 @@ ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Plot)) +
 
 ```{r trt-fluxes-co2}
 # TEMPEST flood test dates
-read_csv("design/flood_tests.csv", col_types = "cTT") %>% 
-  mutate(Timestamp = NA_POSIXct_) ->
-  floods
+floods <- read_csv("design/flood_tests.csv", col_types = "cTT")
+flood_bands <- geom_rect(data = floods, color = "darkgrey", alpha = 0.5,
+                         aes(xmin = Start, xmax = End, ymin = -Inf, ymax = Inf))
 
+# Compute mean fluxes by treatment
 dat1 %>% 
   group_by(File, Plot, Treatment) %>% 
   summarise(Flux_CO2_sd = sd(Flux_CO2, na.rm = TRUE),
@@ -229,7 +230,7 @@ dat1 %>%
             .groups = "drop") ->
   dat_trt_rel
 
-# Cumulative CO2
+# Cumulative relative CO2
 dat_trt_rel %>% 
   filter(!is.na(Flux_CO2)) %>% 
   arrange(Timestamp) %>% 
@@ -238,34 +239,45 @@ dat_trt_rel %>%
   dat_trt_rel_cum_co2
 
 # Plots
-flood_bands <- geom_rect(data = floods, color = "darkgrey", alpha = 0.5,
-                         aes(y = 0, xmin = Start, xmax = End, ymin = -Inf, ymax = Inf))
-flood_coords <- coord_cartesian(xlim = c(min(floods$Start) - 24 * 60 * 60 * 3,
-                                         max(floods$End) + 24 * 60 * 60 * 3))
-
-ggplot(dat_trt, aes(Timestamp, Flux_CO2, color = Treatment)) + 
-  geom_point(na.rm = TRUE) + geom_line() +
-  geom_errorbar(aes(ymin = Flux_CO2 - Flux_CO2_sd,
+abs_plot <- ggplot(dat_trt, aes(color = Treatment)) + 
+  geom_point(aes(Timestamp, Flux_CO2), na.rm = TRUE) + 
+  geom_line(aes(Timestamp, Flux_CO2)) +
+  geom_errorbar(aes(Timestamp,
+                    ymin = Flux_CO2 - Flux_CO2_sd,
                     ymax = Flux_CO2 + Flux_CO2_sd)) +
-  facet_grid(Plot~.) +
-  flood_bands + 
+  facet_grid(Plot~., scales = "free") +
   ggtitle("Absolute")
+print(abs_plot + flood_bands)
 
-last_plot() + flood_coords + ggtitle("Absolute - flood tests")
+# Make control-salt and control-fresh plots, focusing on respective flood tests
+flood_tests <- function(p, dat, title) {
+  for(plt in c("Fresh", "Salt")) {
+    d <- filter(dat, Plot %in% c(plt, "Control")) 
+    f <- filter(floods, Plot == plt)
+    fb <- geom_rect(data = f, color = "darkgrey", alpha = 0.5,
+                    aes(xmin = Start, xmax = End, ymin = -Inf, ymax = Inf))
+    fc <- coord_cartesian(xlim = c(min(f$Start) - 24 * 60 * 60 * 1,
+                                   max(f$End) + 24 * 60 * 60 * 2))
+    print(p %+% d + fb + fc + ggtitle(paste(title, plt)))
+  }
+}
+flood_tests(abs_plot, dat_trt, "Absolute - flood test")
 
-ggplot(dat_trt_rel, aes(Timestamp, Flux_CO2, color = Treatment)) + 
-  geom_point(na.rm = TRUE) + geom_line() +
-  geom_errorbar(aes(ymin = Flux_CO2 - Flux_CO2_sd,
+rel_plot <- ggplot(dat_trt_rel, aes(color = Treatment)) + 
+  geom_point(aes(Timestamp, Flux_CO2), na.rm = TRUE) + 
+  geom_line(aes(Timestamp, Flux_CO2)) +
+  geom_errorbar(aes(Timestamp,
+                    ymin = Flux_CO2 - Flux_CO2_sd,
                     ymax = Flux_CO2 + Flux_CO2_sd)) +
-  facet_grid(Plot~.) +
+  facet_grid(Plot~., scales = "free") +
   ylab("Flux_CO2 (relative to control)") +
-  flood_bands + 
   ggtitle("Relative")
+print(rel_plot + flood_bands)
 
-last_plot() + flood_coords + ggtitle("Relative - flood tests")
+flood_tests(rel_plot, dat_trt_rel, "Relative - flood test")
 
-ggplot(dat_trt_rel_cum_co2, aes(Timestamp, Flux_CO2_cum, color = Treatment)) +
-  geom_line() +
+ggplot(dat_trt_rel_cum_co2, aes(color = Treatment)) +
+  geom_line(aes(Timestamp, Flux_CO2_cum)) +
   facet_grid(Plot~.) + 
   flood_bands + 
   ggtitle("Cumulative")
@@ -282,29 +294,31 @@ dat_trt_rel %>%
   mutate(Flux_CH4_cum = cumsum(Flux_CH4)) ->
   dat_trt_rel_cum_ch4
 
-ggplot(dat_trt, aes(Timestamp, Flux_CH4, color = Treatment)) + 
-  geom_point(na.rm = TRUE) + geom_line() +
-  geom_errorbar(aes(ymin = Flux_CH4 - Flux_CH4_sd,
+abs_plot <- ggplot(dat_trt, aes(color = Treatment)) + 
+  geom_point(aes(Timestamp, Flux_CH4), na.rm = TRUE) + 
+  geom_line(aes(Timestamp, Flux_CH4)) +
+  geom_errorbar(aes(Timestamp,
+                    ymin = Flux_CH4 - Flux_CH4_sd,
                     ymax = Flux_CH4 + Flux_CH4_sd)) +
   facet_grid(Plot~.) +
-  flood_bands +
   ggtitle("Absolute")
+print(abs_plot + flood_bands)
+flood_tests(abs_plot, dat_trt, "Absolute - flood tests")
 
-last_plot() + flood_coords + ggtitle("Absolute - flood tests")
-
-ggplot(dat_trt_rel, aes(Timestamp, Flux_CH4, color = Treatment)) + 
-  geom_point(na.rm = TRUE) + geom_line() +
-  geom_errorbar(aes(ymin = Flux_CH4 - Flux_CH4_sd,
+rel_plot <- ggplot(dat_trt_rel, aes(color = Treatment)) + 
+  geom_point(aes(Timestamp, Flux_CH4), na.rm = TRUE) + 
+  geom_line(aes(Timestamp, Flux_CH4)) +
+  geom_errorbar(aes(Timestamp,
+                    ymin = Flux_CH4 - Flux_CH4_sd,
                     ymax = Flux_CH4 + Flux_CH4_sd)) +
   facet_grid(Plot~.) +
   ylab("Flux_CH4 (relative to control)") +
-  flood_bands + 
   ggtitle("Relative")
+print(rel_plot + flood_bands)
+flood_tests(abs_plot, dat_trt_rel, "Relative - flood tests")
 
-last_plot() + flood_coords + ggtitle("Relative - flood tests")
-
-ggplot(dat_trt_rel_cum_ch4, aes(Timestamp, Flux_CH4_cum, color = Treatment)) +
-  geom_line() +
+ggplot(dat_trt_rel_cum_ch4, aes(color = Treatment)) +
+  geom_line(aes(Timestamp, Flux_CH4_cum)) +
   facet_grid(Plot~.) + 
   flood_bands + 
   ggtitle("Cumulative")
@@ -342,8 +356,8 @@ summaries <- list()
 for(trt in unique(dat_co2$Treatment)) {
   d <- filter(dat_co2, Treatment == trt)
   m <- nls(Flux_CO2 ~ r10 * q10 ^ ((Soil_t - 10) / 10), 
-                     data = d, 
-                     start = list(r10 = 3,q10 = 2))
+           data = d, 
+           start = list(r10 = 3,q10 = 2))
   p <- tibble(Soil_t = seq(min(d$Soil_t), max(d$Soil_t), length.out = 20),
               Treatment = trt)
   p$Flux_CO2 <- predict(m, newdata = p)
