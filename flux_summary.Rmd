@@ -455,8 +455,8 @@ dat81raw %>%
 ```{r summary-8100}
 ltc_map <- read_csv("design/ltc_map.csv", col_types = "cdc")
 dat81raw %>% 
-  left_join(ltc_map, by = "Port") %>% 
-  left_join(collars, by = "Collar") %>% 
+  left_join(ltc_map, by = c("Plot", "Port")) %>% 
+  left_join(collars, by = c("Plot", "Collar")) %>% 
   mutate(Year = year(Timestamp)) ->
   dat81
 
