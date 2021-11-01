@@ -468,7 +468,6 @@ dat81 %>%
 
 ### Outliers
 
-
 ```{r qaqc-8100}
 qnt_co2 <- qnt(dat81$Exp_Flux)
 bad_co2 <- !between(dat81$Exp_Flux, qnt_co2[1], qnt_co2[2])
