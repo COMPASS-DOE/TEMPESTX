@@ -174,14 +174,28 @@ Notes to self - things to qa/qc:
 
 ## Fluxes
 
-### Collar fluxes over time
+### Collar fluxes over time {.tabset}
 
-```{r collar-fluxes}
+#### CO2
+
+```{r collar-fluxes-co2}
 ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Treatment)) + 
   geom_line() + 
   facet_wrap(~paste(Plot, "-", Group))
 
 ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Plot)) + 
+  geom_line() + 
+  facet_wrap(~Treatment)
+```
+
+#### CH4
+
+```{r collar-fluxes-ch4}
+ggplot(dat1, aes(Timestamp, Flux_CH4, group = Collar, color = Treatment)) + 
+  geom_line() + 
+  facet_wrap(~paste(Plot, "-", Group))
+
+ggplot(dat1, aes(Timestamp, Flux_CH4, group = Collar, color = Plot)) + 
   geom_line() + 
   facet_wrap(~Treatment)
 ```
@@ -438,17 +452,6 @@ lapply(files81, read81) %>%
 ```
 
 We have `r nrow(dat81raw)` LI-8100 observations.
-
-### Potentially bad filenames
-
-```{r badnames-8100}
-dat81raw %>%
-  group_by(Filename, Serial, Plot) %>% 
-  summarise(Start = as.Date(min(Timestamp), na.rm = TRUE), 
-            End = as.Date(max(Timestamp), na.rm = TRUE),
-            .groups = "drop") %>% 
-  knitr::kable()
-```
 
 ### Data summary
 
