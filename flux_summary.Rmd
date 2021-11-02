@@ -342,6 +342,24 @@ ggplot(dat_trt_rel_cum_ch4, aes(color = Treatment)) +
 
 ## Temperature and moisture {.tabset}
 
+```{r t-and-m, message=FALSE}
+# Temperature and moisture over time
+t_plot <- ggplot(dat1, aes(color = Plot)) + 
+  geom_point(aes(x = Timestamp, y = Soil_t), na.rm = TRUE) + 
+  geom_smooth(aes(x = Timestamp, y = Soil_t), na.rm = TRUE) +
+  facet_grid(Plot~.)
+print(t_plot + flood_bands)
+flood_tests(t_plot, dat1, "Soil temp - flood tests")
+
+m_plot <- ggplot(dat1, aes(color = Plot)) + 
+  geom_point(aes(x = Timestamp, y = Soil_m), na.rm = TRUE) + 
+  geom_smooth(aes(x = Timestamp, y = Soil_m), na.rm = TRUE) +
+  facet_grid(Plot~.)
+print(m_plot + flood_bands)
+flood_tests(m_plot, dat1, "Soil moisture - flood tests")
+```
+
+
 ```{r t-vs-m}
 dat_tm <- filter(dat1, !is.na(Soil_t), !is.na(Soil_m), Soil_m > 0)
 dat_tm$Month <- month(dat_tm$Timestamp)
