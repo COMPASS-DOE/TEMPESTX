@@ -1,0 +1,538 @@
+---
+title: "TEMPESTX flux summary"
+author: "Ben"
+date: "`r Sys.time()`"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '4'
+    toc_float: yes
+    number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(readr)
+library(dplyr)
+library(ggplot2)
+theme_set(theme_bw())
+library(lubridate)
+library(tidyr)
+library(scales)
+```
+
+## Experiment
+
+TEMPESTX is a small-scale soil exclusion experiment nested within the larger
+TEMPEST flood plots.
+
+* Three flood plots (40 m x 50 m) separated by 5-50 m
+* Four groups of exclusion plots (each 0.75 m2?)
+* Each group has four plots (1 control, 1 disturbance control trenched with no barrier, 1 trenched and lined with 1 µm mesh, 1 trenched and lined with 45 µm mesh)
+* Plots separated by 2-5 m; plot groups separated by 5-20 m
+* Exclusion plots installed in February 2020
+
+![TEMPEST installation](conceptual_figures/PlotInstall.png)
+![TEMPEST installation](conceptual_figures/Functional response.png)
+![TEMPEST installation](conceptual_figures/Ecosystem cascade.png)
+
+
+```{r read_files, warning=FALSE}
+files <- list.files("7810_data/", pattern = "*.txt", full.names = TRUE, recursive = TRUE)
+
+readfn <- function(x) {
+  dat <- read_tsv(x, 
+                  # note we're dropping "Item" and a junk column at the end
+                  # this is done by skipping their names, and specifying "_" type below
+                  col_names = c("Item", "Timestamp", "Collar", "Obs", 
+                                "Flux_CO2", "Flux_CH4", "Soil_c", "Soil_m", "Soil_t", 
+                                "Length", "R2_CO2", "R2_CH4", "err", "junk"), 
+                  col_types = "cTcinnnnninnic",
+                  na = c("", "NA", "9999"), # soil probe NA is 9999
+                  skip = 1)
+  
+  # Some of the files output from SoilFluxPro are structurally different :(
+  # with one or more missing columns. Record this
+  dat %>% 
+    mutate(file_structure_prob = nrow(problems(dat))) %>% 
+    select(-Item, -junk)
+}
+
+lapply(files, readfn) %>% 
+  bind_rows(.id = "File") %>% 
+  mutate(File = as.integer(File)) ->
+  dat
+
+datzero <- filter(dat, Flux_CO2 == 0)
+datneg <- filter(dat, Flux_CO2 < 0)
+daterr <- filter(dat, err > 0)
+```
+
+## QA/QC
+
+### Bad collar numbers
+
+```{r}
+dat %>% 
+  filter(grepl("[a-z]", Collar)) %>% 
+  select(File, Collar) %>% 
+  distinct() %>% 
+  mutate(File = files[File]) %>% 
+  knitr::kable()
+
+# Merge with collar data
+read_csv("design/collar_map.csv", col_types = "ccdci") %>% 
+  select(-LI8100A_Port) ->
+  collars
+dat <- left_join(dat, collars, by = "Collar")
+```
+
+### Out-and-out errors
+
+Data0 (raw data) has `r nrow(dat)` observations.
+
+We have `r nrow(datzero)` observations with CO2 flux of exactly zero. Removing.
+
+We have `r nrow(datneg)` observations with CO2 flux less than zero. Removing.
+
+We have `r nrow(daterr)` observations with LI-8100 error flags. Removing.
+
+```{r errors}
+dat %>% 
+  filter(Flux_CO2 > 0) %>% 
+  filter(err == 0) %>% 
+  select(-err) ->
+  dat1
+```
+
+Data1 has `r nrow(dat1)` observations (`r round(nrow(dat1) / nrow(dat) * 100, 1)`% of raw).
+
+### Model fit
+
+```{r fits}
+r2_min <- 0.5
+
+dat1_co2r2 <- filter(dat1, R2_CO2 < r2_min)
+dat1_ch4r2 <- filter(dat1, R2_CH4 < r2_min)
+```
+
+We have `r nrow(dat1_co2r2)` observations with CO2 fit R2 less than `r r2_min`. Not removing but FYI.
+
+We have `r nrow(dat1_ch4r2)` observations with CH4 fit R2 less than `r r2_min`. Not removing but FYI.
+
+### Outliers
+
+```{r qaqc-outliers}
+q_region <- 0.99
+q_probs <- c((1 - q_region) / 2, 1 - (1 - q_region) / 2)
+
+qnt <- function(x, p = q_probs) {
+  round(quantile(x, probs = p, na.rm = TRUE), digits = 3)
+}
+qnt_co2 <- qnt(dat1$Flux_CO2)
+qnt_ch4 <- qnt(dat1$Flux_CH4)
+bad_co2 <- !between(dat1$Flux_CO2, qnt_co2[1], qnt_co2[2])
+bad_ch4 <- !between(dat1$Flux_CH4, qnt_ch4[1], qnt_ch4[2])
+dat1$Flux_CO2[bad_co2] <- NA_real_
+dat1$Flux_CH4[bad_ch4] <- NA_real_
+```
+
+Restrict data to `r q_region * 100`%.
+
+The [`r q_probs`] quantiles of `Flux_CO2` are `r qnt_co2`. Changing the `r sum(bad_co2)` values outside of this to NA.
+
+The [`r q_probs`] quantiles of `Flux_CH4` are `r qnt_ch4`. Changing the `r sum(bad_ch4)` values outside of this to NA.
+
+## Overview
+
+Something | Something else
+--------- | --------------
+First date | `r min(dat1$Timestamp)`
+Last date | `r max(dat1$Timestamp)`
+N (obs) | `r nrow(dat1)`
+N (rounds) | `r length(unique(dat1$File))`
+
+```{r smry}
+library(skimr)
+dat1 %>% 
+  select_if(is.numeric) %>% 
+  skim()
+```
+
+
+Notes to self - things to qa/qc: 
+
+* Zero CO2 flux observations
+* CO2 flux outside of 95% envelope (currently = 0, 32.4)
+* CH4 flux outside of 95% envelope (currently = -5.7, 0.3)
+* Ditto for t, m, c
+* Distribution of R2 values
+* File with structural issues
+* Records with Licor err values
+
+## Fluxes
+
+### Collar fluxes over time {.tabset}
+
+#### CO2
+
+```{r collar-fluxes-co2}
+ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Treatment)) + 
+  geom_line() + 
+  facet_wrap(~paste(Plot, "-", Group))
+
+ggplot(dat1, aes(Timestamp, Flux_CO2, group = Collar, color = Plot)) + 
+  geom_line() + 
+  facet_wrap(~Treatment)
+```
+
+#### CH4
+
+```{r collar-fluxes-ch4}
+ggplot(dat1, aes(Timestamp, Flux_CH4, group = Collar, color = Treatment)) + 
+  geom_line() + 
+  facet_wrap(~paste(Plot, "-", Group))
+
+ggplot(dat1, aes(Timestamp, Flux_CH4, group = Collar, color = Plot)) + 
+  geom_line() + 
+  facet_wrap(~Treatment)
+```
+
+### Treatment fluxes over time {.tabset}
+
+#### CO2
+
+```{r trt-fluxes-co2}
+# TEMPEST flood test dates
+floods <- read_csv("design/flood_tests.csv", col_types = "cTT")
+flood_bands <- geom_rect(data = floods, color = "darkgrey", alpha = 0.5,
+                         aes(xmin = Start, xmax = End, ymin = -Inf, ymax = Inf))
+
+# Compute mean fluxes by treatment
+dat1 %>% 
+  group_by(File, Plot, Treatment) %>% 
+  summarise(Flux_CO2_sd = sd(Flux_CO2, na.rm = TRUE),
+            Flux_CO2 = mean(Flux_CO2, na.rm = TRUE),
+            Flux_CH4_sd = sd(Flux_CH4, na.rm = TRUE),
+            Flux_CH4 = mean(Flux_CH4, na.rm = TRUE),
+            Timestamp = mean(Timestamp),
+            .groups = "drop") ->
+  dat_trt
+
+# Relative to control
+dat1 %>% 
+  filter(Treatment == "Control") %>% 
+  rename(conCO2 = Flux_CO2, conCH4 = Flux_CH4) %>% 
+  select(File, Plot, Group, conCO2, conCH4) %>% 
+  # summarise the controls by plot only, not group; we don't want to lose
+  # entire group's measurements if the control is missing for some reason
+  group_by(File, Plot) %>% 
+  summarise(conCO2 = mean(conCO2, na.rm = TRUE),
+            conCH4 = mean(conCH4, na.rm = TRUE),
+            .groups = "drop") ->
+  controls
+dat1 %>% 
+  left_join(controls, by = c("File", "Plot")) %>% 
+  mutate(Flux_CO2 = Flux_CO2 - conCO2,
+         Flux_CH4 = Flux_CH4 - conCH4) %>% 
+  group_by(File, Plot, Treatment) %>% 
+  summarise(Flux_CO2_sd = sd(Flux_CO2, na.rm = TRUE),
+            Flux_CO2 = mean(Flux_CO2, na.rm = TRUE),
+            Flux_CH4_sd = sd(Flux_CH4, na.rm = TRUE),
+            Flux_CH4 = mean(Flux_CH4, na.rm = TRUE),
+            Timestamp = mean(Timestamp),
+            .groups = "drop") ->
+  dat_trt_rel
+
+# Cumulative relative CO2
+dat_trt_rel %>% 
+  filter(!is.na(Flux_CO2)) %>% 
+  arrange(Timestamp) %>% 
+  group_by(Plot, Treatment) %>% 
+  mutate(Flux_CO2_cum = cumsum(Flux_CO2)) ->
+  dat_trt_rel_cum_co2
+
+# Plots
+abs_plot <- ggplot(dat_trt, aes(color = Treatment)) + 
+  geom_point(aes(Timestamp, Flux_CO2), na.rm = TRUE) + 
+  geom_line(aes(Timestamp, Flux_CO2)) +
+  geom_errorbar(aes(Timestamp,
+                    ymin = Flux_CO2 - Flux_CO2_sd,
+                    ymax = Flux_CO2 + Flux_CO2_sd)) +
+  facet_grid(Plot~., scales = "free") +
+  ggtitle("Absolute")
+print(abs_plot + flood_bands)
+
+# Make control-salt and control-fresh plots, focusing on respective flood tests
+flood_tests <- function(p, dat, title) {
+  for(plt in c("Fresh", "Salt")) {
+    d <- filter(dat, Plot %in% c(plt, "Control")) 
+    f <- filter(floods, Plot == plt)
+    fb <- geom_rect(data = f, color = "darkgrey", alpha = 0.5,
+                    aes(xmin = Start, xmax = End, ymin = -Inf, ymax = Inf))
+    fc <- coord_cartesian(xlim = c(min(f$Start) - 24 * 60 * 60 * 1,
+                                   max(f$End) + 24 * 60 * 60 * 2))
+    print(p %+% d + fb + fc + ggtitle(paste(title, plt)))
+  }
+}
+flood_tests(abs_plot, dat_trt, "Absolute - flood test")
+
+rel_plot <- ggplot(dat_trt_rel, aes(color = Treatment)) + 
+  geom_point(aes(Timestamp, Flux_CO2), na.rm = TRUE) + 
+  geom_line(aes(Timestamp, Flux_CO2)) +
+  geom_errorbar(aes(Timestamp,
+                    ymin = Flux_CO2 - Flux_CO2_sd,
+                    ymax = Flux_CO2 + Flux_CO2_sd)) +
+  facet_grid(Plot~., scales = "free") +
+  ylab("Flux_CO2 (relative to control)") +
+  ggtitle("Relative")
+print(rel_plot + flood_bands)
+
+flood_tests(rel_plot, dat_trt_rel, "Relative - flood test")
+
+ggplot(dat_trt_rel_cum_co2, aes(color = Treatment)) +
+  geom_line(aes(Timestamp, Flux_CO2_cum)) +
+  facet_grid(Plot~.) + 
+  flood_bands + 
+  ggtitle("Cumulative")
+```
+
+#### CH4
+
+```{r trt-fluxes-ch4}
+# Cumulative CH4
+dat_trt_rel %>% 
+  filter(!is.na(Flux_CH4)) %>% 
+  arrange(Timestamp) %>% 
+  group_by(Plot, Treatment) %>% 
+  mutate(Flux_CH4_cum = cumsum(Flux_CH4)) ->
+  dat_trt_rel_cum_ch4
+
+abs_plot <- ggplot(dat_trt, aes(color = Treatment)) + 
+  geom_point(aes(Timestamp, Flux_CH4), na.rm = TRUE) + 
+  geom_line(aes(Timestamp, Flux_CH4)) +
+  geom_errorbar(aes(Timestamp,
+                    ymin = Flux_CH4 - Flux_CH4_sd,
+                    ymax = Flux_CH4 + Flux_CH4_sd)) +
+  facet_grid(Plot~.) +
+  ggtitle("Absolute")
+print(abs_plot + flood_bands)
+flood_tests(abs_plot, dat_trt, "Absolute - flood tests")
+
+rel_plot <- ggplot(dat_trt_rel, aes(color = Treatment)) + 
+  geom_point(aes(Timestamp, Flux_CH4), na.rm = TRUE) + 
+  geom_line(aes(Timestamp, Flux_CH4)) +
+  geom_errorbar(aes(Timestamp,
+                    ymin = Flux_CH4 - Flux_CH4_sd,
+                    ymax = Flux_CH4 + Flux_CH4_sd)) +
+  facet_grid(Plot~.) +
+  ylab("Flux_CH4 (relative to control)") +
+  ggtitle("Relative")
+print(rel_plot + flood_bands)
+flood_tests(abs_plot, dat_trt_rel, "Relative - flood tests")
+
+ggplot(dat_trt_rel_cum_ch4, aes(color = Treatment)) +
+  geom_line(aes(Timestamp, Flux_CH4_cum)) +
+  facet_grid(Plot~.) + 
+  flood_bands + 
+  ggtitle("Cumulative")
+```
+
+## Temperature and moisture {.tabset}
+
+```{r t-and-m, message=FALSE}
+# Temperature and moisture over time
+t_plot <- ggplot(dat1, aes(color = Plot)) + 
+  geom_point(aes(x = Timestamp, y = Soil_t), na.rm = TRUE) + 
+  geom_smooth(aes(x = Timestamp, y = Soil_t), na.rm = TRUE) +
+  facet_grid(Plot~.)
+print(t_plot + flood_bands)
+flood_tests(t_plot, dat1, "Soil temp - flood tests")
+
+m_plot <- ggplot(dat1, aes(color = Plot)) + 
+  geom_point(aes(x = Timestamp, y = Soil_m), na.rm = TRUE) + 
+  geom_smooth(aes(x = Timestamp, y = Soil_m), na.rm = TRUE) +
+  facet_grid(Plot~.)
+print(m_plot + flood_bands)
+flood_tests(m_plot, dat1, "Soil moisture - flood tests")
+```
+
+
+```{r t-vs-m}
+dat_tm <- filter(dat1, !is.na(Soil_t), !is.na(Soil_m), Soil_m > 0)
+dat_tm$Month <- month(dat_tm$Timestamp)
+ggplot(dat_tm, aes(Soil_t, Soil_m, color = Month)) + 
+  geom_point() + 
+  scale_color_gradient2(low = muted("blue"), 
+                        mid = "green", 
+                        high = muted("blue"), midpoint = 6.5)
+ggplot(dat_tm, aes(Soil_t, Soil_m, color = Plot, size = Flux_CO2)) +
+  geom_point(alpha = 0.25, na.rm = TRUE) 
+ggplot(dat_tm, aes(Soil_t, Soil_m, color = Plot, size = Flux_CH4)) +
+  geom_point(alpha = 0.25, na.rm = TRUE) 
+```
+
+### CO2
+
+Nonlinear model fits for 
+
+$f = R_{10} * Q10^{(T - 10) / 10}$
+
+```{r q10-models}
+dat_co2 <- filter(dat_tm, !is.na(Flux_CO2))
+
+# Fit nonlinear Q10 model
+predictions <- list()
+models <- list()
+summaries <- list()
+for(trt in unique(dat_co2$Treatment)) {
+  d <- filter(dat_co2, Treatment == trt)
+  m <- nls(Flux_CO2 ~ r10 * q10 ^ ((Soil_t - 10) / 10), 
+           data = d, 
+           start = list(r10 = 3,q10 = 2))
+  p <- tibble(Soil_t = seq(min(d$Soil_t), max(d$Soil_t), length.out = 20),
+              Treatment = trt)
+  p$Flux_CO2 <- predict(m, newdata = p)
+  predictions[[trt]] <- p
+  models[[trt]] <- m
+  summaries[[trt]] <- broom::tidy(m)
+}
+
+model_smry <- bind_rows(summaries, .id = "Treatment")
+
+# Table and graphs summarizing model fits
+knitr::kable(model_smry, digits = 3)
+ggplot(model_smry, aes(Treatment, estimate, color = Treatment)) +
+  geom_pointrange(aes(ymin = estimate - std.error, ymax = estimate + std.error)) +
+  facet_wrap(~term, scales = "free")
+predictions <- bind_rows(predictions, .id = "Treatment")
+ggplot(dat_co2, aes(Soil_t, Flux_CO2, color = Treatment)) +
+  geom_point(alpha = 0.1) +
+  geom_line(data = predictions)
+```
+
+```{r q10-co2}
+ggplot(dat_co2, aes(Soil_t, Flux_CO2, color = Treatment)) + 
+  geom_point(alpha = 0.2) +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  facet_grid(Plot~.)
+
+ggplot(dat_co2, aes(Soil_m, Flux_CO2, color = Treatment)) + 
+  geom_point(alpha = 0.2) +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2, raw = TRUE)) + 
+  facet_grid(Plot~.)
+```
+
+### CH4
+
+```{r q10-ch4}
+dat_ch4 <- filter(dat_tm, !is.na(Flux_CH4))
+
+ggplot(dat_ch4, aes(Soil_t, Flux_CH4, color = Treatment)) + 
+  geom_point(alpha = 0.2) +
+  #  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", formula = y ~ x) + 
+  facet_grid(Plot~.)
+
+ggplot(dat_ch4, aes(Soil_m, Flux_CH4, color = Treatment)) + 
+  geom_point(alpha = 0.2) +
+  # scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", formula = y ~ x) + 
+  facet_grid(Plot~.)
+```
+
+## LI-8100
+
+```{r read-8100}
+files81 <- list.files("8100_data/", pattern = "*.txt", full.names = TRUE, recursive = TRUE)
+
+read81 <- function(f) {
+  d <- read_tsv(f,
+                col_names = c("Serial", "Timestamp", "Obs", "Port", "Length", 
+                              "Exp_Flux", "Exp_R2", "Lin_Flux", "Lin_R2", 
+                              "Tcham", "V1", "V2", "V3", "V4"),
+                col_types = "cTiitddddddddd_",
+                skip = 1)
+  d$Filename <- basename(f)
+  d
+}
+lapply(files81, read81) %>% 
+  bind_rows() %>% 
+  separate(Filename, into = c("junk1", "Plot", "junk2"), sep = "_", remove = FALSE) %>% 
+  select(-junk1, -junk2) %>% 
+  filter(!is.na(Timestamp)) %>% 
+  mutate(Plot = paste0(substring(Plot, 1, 1), tolower(substring(Plot, 2)))) ->
+  dat81raw
+```
+
+We have `r nrow(dat81raw)` LI-8100 observations.
+
+### Data summary
+
+```{r summary-8100}
+ltc_map <- read_csv("design/ltc_map.csv", col_types = "cdc")
+dat81raw %>% 
+  left_join(ltc_map, by = c("Plot", "Port")) %>% 
+  left_join(collars, by = c("Plot", "Collar")) %>% 
+  mutate(Year = year(Timestamp)) ->
+  dat81
+
+dat81 %>% 
+  group_by(Plot, Collar) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  knitr::kable()
+```
+
+### Outliers
+
+```{r qaqc-8100}
+qnt_co2 <- qnt(dat81$Exp_Flux)
+bad_co2 <- !between(dat81$Exp_Flux, qnt_co2[1], qnt_co2[2])
+dat81$Exp_Flux[bad_co2] <- NA_real_
+```
+
+Restrict data to `r q_region * 100`%.
+
+The [`r q_probs`] quantiles of `Exp_Flux` are `r qnt_co2`. Changing the `r sum(bad_co2, na.rm = TRUE)` values outside of this to NA.
+
+### Fluxes over time
+
+```{r fluxes-8100}
+ggplot(dat81, aes(Timestamp, Exp_Flux, color = Treatment)) + 
+  geom_point(na.rm = TRUE) + 
+  facet_grid(Plot~ Year, scales = "free")
+```
+
+### 7810-8100 comparison
+
+```{r}
+# Round timestamp to nearest hour in each dataset, then merge
+dat81 %>% 
+  mutate(Timestamp_rnd = round_date(Timestamp, "hour")) %>% 
+  select(Timestamp_rnd, Plot, Collar, Treatment,
+         LI8100_Exp_Flux = Exp_Flux, LI8100_Lin_Flux = Lin_Flux) ->
+  dat81_rnd
+dat1 %>% 
+  mutate(Timestamp_rnd = round_date(Timestamp, "hour")) %>% 
+  select(Timestamp_rnd, Plot, Collar, Treatment, LI7810_Flux = Flux_CO2) %>% 
+  inner_join(dat81_rnd, by = c("Timestamp_rnd", "Plot", "Collar", "Treatment")) -> dat_combined
+
+ggplot(dat_combined, aes(LI7810_Flux, LI8100_Exp_Flux)) + 
+  geom_point(aes(color = Treatment), na.rm = TRUE) + 
+  geom_abline() + 
+  facet_wrap(~Plot, ncol = 2) + 
+  geom_smooth(method = "lm", na.rm = TRUE, 
+              color = "black", linetype = 2, formula = y~x) +
+  coord_fixed()
+ggplot(dat_combined, aes(LI7810_Flux, LI8100_Lin_Flux)) + 
+  geom_point(aes(color = Treatment), na.rm = TRUE) + 
+  geom_abline() + 
+  facet_wrap(~Plot, ncol = 2) + 
+  geom_smooth(method = "lm", na.rm = TRUE, 
+              color = "black", linetype = 2, formula = y~x) +
+  coord_fixed()
+```
