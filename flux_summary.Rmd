@@ -257,11 +257,12 @@ dat_trt_rel %>%
 # Plots
 abs_plot <- ggplot(dat_trt, aes(color = Treatment)) + 
   geom_point(aes(Timestamp, Flux_CO2), na.rm = TRUE) + 
-  geom_line(aes(Timestamp, Flux_CO2)) +
+  geom_line(aes(Timestamp, Flux_CO2), size = 1.5) +
   geom_errorbar(aes(Timestamp,
                     ymin = Flux_CO2 - Flux_CO2_sd,
                     ymax = Flux_CO2 + Flux_CO2_sd)) +
   facet_grid(Plot~., scales = "free") +
+  ylab(expression(CO[2]~flux~(µmol~m^-2~s^-1))) +
   ggtitle("Absolute")
 print(abs_plot + flood_bands)
 
@@ -281,20 +282,21 @@ flood_tests(abs_plot, dat_trt, "Absolute - flood test")
 
 rel_plot <- ggplot(dat_trt_rel, aes(color = Treatment)) + 
   geom_point(aes(Timestamp, Flux_CO2), na.rm = TRUE) + 
-  geom_line(aes(Timestamp, Flux_CO2)) +
+  geom_line(aes(Timestamp, Flux_CO2), size = 1.5) +
   geom_errorbar(aes(Timestamp,
                     ymin = Flux_CO2 - Flux_CO2_sd,
                     ymax = Flux_CO2 + Flux_CO2_sd)) +
   facet_grid(Plot~., scales = "free") +
-  ylab("Flux_CO2 (relative to control)") +
+  ylab(expression(CO[2]~flux~(µmol~m^-2~s^-1)~relative~to~control)) +
   ggtitle("Relative")
 print(rel_plot + flood_bands)
 
 flood_tests(rel_plot, dat_trt_rel, "Relative - flood test")
 
 ggplot(dat_trt_rel_cum_co2, aes(color = Treatment)) +
-  geom_line(aes(Timestamp, Flux_CO2_cum)) +
-  facet_grid(Plot~.) + 
+  geom_line(aes(Timestamp, Flux_CO2_cum), size = 1.5) +
+  ylab(expression(Cumulative~CO[2]~(µmol~m^-2~s^-1)~relative~to~control)) +
+  facet_grid(Plot~., scales = "free") + 
   flood_bands + 
   ggtitle("Cumulative")
 ```
@@ -312,30 +314,32 @@ dat_trt_rel %>%
 
 abs_plot <- ggplot(dat_trt, aes(color = Treatment)) + 
   geom_point(aes(Timestamp, Flux_CH4), na.rm = TRUE) + 
-  geom_line(aes(Timestamp, Flux_CH4)) +
+  geom_line(aes(Timestamp, Flux_CH4), size = 1.5) +
   geom_errorbar(aes(Timestamp,
                     ymin = Flux_CH4 - Flux_CH4_sd,
                     ymax = Flux_CH4 + Flux_CH4_sd)) +
   facet_grid(Plot~.) +
+  ylab(expression(CH[4]~flux~(µmol~m^-2~s^-1))) +
   ggtitle("Absolute")
 print(abs_plot + flood_bands)
 flood_tests(abs_plot, dat_trt, "Absolute - flood tests")
 
 rel_plot <- ggplot(dat_trt_rel, aes(color = Treatment)) + 
   geom_point(aes(Timestamp, Flux_CH4), na.rm = TRUE) + 
-  geom_line(aes(Timestamp, Flux_CH4)) +
+  geom_line(aes(Timestamp, Flux_CH4), size = 1.5) +
   geom_errorbar(aes(Timestamp,
                     ymin = Flux_CH4 - Flux_CH4_sd,
                     ymax = Flux_CH4 + Flux_CH4_sd)) +
   facet_grid(Plot~.) +
-  ylab("Flux_CH4 (relative to control)") +
+  ylab(expression(CH[4]~flux~(µmol~m^-2~s^-1)~relative~to~control)) +
   ggtitle("Relative")
 print(rel_plot + flood_bands)
 flood_tests(abs_plot, dat_trt_rel, "Relative - flood tests")
 
 ggplot(dat_trt_rel_cum_ch4, aes(color = Treatment)) +
-  geom_line(aes(Timestamp, Flux_CH4_cum)) +
-  facet_grid(Plot~.) + 
+  geom_line(aes(Timestamp, Flux_CH4_cum), size = 1.5) +
+  facet_grid(Plot~., scales = "free") + 
+  ylab(expression(Cumulative~CH[4]~(µmol~m^-2~s^-1)~relative~to~control)) +
   flood_bands + 
   ggtitle("Cumulative")
 ```
