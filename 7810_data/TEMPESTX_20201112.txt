@@ -1,3 +1,0 @@
-Item#	Date_IV	File Name	Obs#	Exp_Flux	Exp_Flux[2]	soilp_c_IV	soilp_m_IV	soilp_t_IV	Observation Length	Exp_R2	Exp_R2[2]	err_IV	
-* 1	2020-11-12 08:38:06	4	1	6.88468	0.556612	0.021	0.467	19.7	59	0.956313	0.747469	0	
-* 2	2020-11-12 08:39:32	4	2	2.28472	0.0283421	0.022	0.467	19.5	60	0.888759	0.0129426	0	
