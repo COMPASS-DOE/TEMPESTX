@@ -36,9 +36,10 @@ if(problem_files > 0) {
 flux_files <- list.files("./fluxes/", pattern = "\\.csv$", full.names = TRUE)
 fluxes <- lapply(flux_files, read_csv, show_col_types = FALSE)
 fluxes_df <- do.call("rbind", fluxes)
-fluxes_df <- fluxes_df[fluxes_df$co2_F_o > 0 & fluxes_df$co2_F_o < 100,]
 
 library(ggplot2)
-p <- ggplot(fluxes_df, aes(TIMESTAMP, co2_F_o, group = label)) + geom_line()
-print(p)
+p_co2 <- ggplot(fluxes_df, aes(TIMESTAMP, co2_F_o, group = label)) + geom_line() + ylim(c(0, 100))
+print(p_co2)
 
+p_ch4 <- ggplot(fluxes_df, aes(TIMESTAMP, ch4_F_o, group = label)) + geom_line() + ylim(c(-1, 10))
+print(p_ch4)
