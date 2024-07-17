@@ -1,15 +1,13 @@
 # concentrations_metadata.md
 
-These fields are all produced by the Li-Cor Smart Chamber,
-except for `obs` and `TIMESTAMP`, which are added by the `fluxfinder` package
-used to read the raw files.
+These fields are all produced by the Li-Cor Smart Chamberexcept for `TIMESTAMP`,
+which is added by the `fluxfinder` package used to read the raw files.
 
 Data documentation: https://www.licor.com/env/support/Smart-Chamber/topics/data-files.html#Data2
 
 | Column name | Description |
 | ----------- | ----------- |
 | label | Label of observation, entered by user |
-| obs | Observation number in file |
 | remark | Remark, entered by user |
 | Chamber | Smart Chamber model |
 | Version | Smart Chamber software version |
