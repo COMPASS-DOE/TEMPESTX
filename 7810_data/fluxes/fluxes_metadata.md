@@ -27,6 +27,11 @@ Data documentation: https://www.licor.com/env/support/Smart-Chamber/topics/data-
 | altitude | Altitude of measurement, m |
 | gps_sats | GPS number of satellites? |
 | TimeZone | Time zone of data |
+| chamber_p | Chamber pressure, kPa |
+| chamber_t | Chamber temperature, degrees C |
+| soilp_c | Stevens probe soil electrical conductivity, S/m |
+| soilp_m | Stevens probe soil moisture, m3/m3 |
+| soilp_t | Stevens probe soil temperature, degrees C |
 | ch4_F_o | Exponential fit computed CH4 flux, nmol/m2/s |
 | ch4_F_cv | Flux coefficient of variance, % |
 | ch4_t_o | t0 term for the exponential fit, s |
