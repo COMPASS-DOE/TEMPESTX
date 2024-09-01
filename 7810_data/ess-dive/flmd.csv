@@ -1,0 +1,281 @@
+File_Name,File_Path,File_Description,Standard,UTC_Offset,Date_Start,Date_End
+collar_metadata.csv,,Soil respiration collar metadata,,,,
+concentrations_metadata.md,concentrations,Gas concentration metadata,,,,
+TEMPEST_20240612a_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240612,20240612
+TEMPEST_20240612b_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240612,20240612
+TEMPESTX_20200415_concentrations.csv,concentrations,Measured gas concentration data,,-5,20200415,20200415
+TEMPESTX_20200507_concentrations.csv,concentrations,Measured gas concentration data,,-5,20200507,20200507
+TEMPESTX_20200521_concentrations.csv,concentrations,Measured gas concentration data,,-5,20200521,20200521
+TEMPESTX_20200603_concentrations.csv,concentrations,Measured gas concentration data,,-5,20200603,20200603
+TEMPESTX_20200619_concentrations.csv,concentrations,Measured gas concentration data,,-5,20200619,20200619
+TEMPESTX_20200708_concentrations.csv,concentrations,Measured gas concentration data,,-5,20200708,20200708
+TEMPESTX_20200825_concentrations.csv,concentrations,Measured gas concentration data,,-5,20200825,20200825
+TEMPESTX_20200911_concentrations.csv,concentrations,Measured gas concentration data,,-5,20200911,20200911
+TEMPESTX_20200916_concentrations.csv,concentrations,Measured gas concentration data,,-5,20200916,20200916
+TEMPESTX_20201008_concentrations.csv,concentrations,Measured gas concentration data,,-5,20201008,20201008
+TEMPESTX_20201015_concentrations.csv,concentrations,Measured gas concentration data,,-5,20201015,20201015
+TEMPESTX_20201028a_concentrations.csv,concentrations,Measured gas concentration data,,-5,20201028,20201028
+TEMPESTX_20201112_concentrations.csv,concentrations,Measured gas concentration data,,-5,20201112,20201112
+TEMPESTX_20201113_concentrations.csv,concentrations,Measured gas concentration data,,-5,20201113,20201113
+TEMPESTX_20201207_concentrations.csv,concentrations,Measured gas concentration data,,-5,20201207,20201207
+TEMPESTX_20201230_concentrations.csv,concentrations,Measured gas concentration data,,-5,20201230,20201230
+TEMPESTX_20210113_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210113,20210113
+TEMPESTX_20210129_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210129,20210129
+TEMPESTX_20210226_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210226,20210226
+TEMPESTX_20210308_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210308,20210308
+TEMPESTX_20210325_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210325,20210325
+TEMPESTX_20210406_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210406,20210406
+TEMPESTX_20210420_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210420,20210420
+TEMPESTX_20210430_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210430,20210430
+TEMPESTX_20210510_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210510,20210510
+TEMPESTX_20210525_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210525,20210525
+TEMPESTX_20210608_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210608,20210608
+TEMPESTX_20210621_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210621,20210621
+TEMPESTX_20210706_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210706,20210706
+TEMPESTX_20210719_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210719,20210719
+TEMPESTX_20210804_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210804,20210804
+TEMPESTX_20210819_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210819,20210819
+TEMPESTX_20210824_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210824,20210824
+TEMPESTX_20210825a_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210825,20210825
+TEMPESTX_20210825b_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210825,20210825
+TEMPESTX_20210825c_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210825,20210825
+TEMPESTX_20210825d_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210825,20210825
+TEMPESTX_20210826_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210826,20210826
+TEMPESTX_20210827_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210827,20210827
+TEMPESTX_20210830_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210830,20210830
+TEMPESTX_20210831_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210831,20210831
+TEMPESTX_20210902_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210902,20210902
+TEMPESTX_20210908_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210908,20210908
+TEMPESTX_20210909a_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210909,20210909
+TEMPESTX_20210909b_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210909,20210909
+TEMPESTX_20210909c_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210909,20210909
+TEMPESTX_20210909d_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210909,20210909
+TEMPESTX_20210910a_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210910,20210910
+TEMPESTX_20210911_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210911,20210911
+TEMPESTX_20210916_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210916,20210916
+TEMPESTX_20210928_concentrations.csv,concentrations,Measured gas concentration data,,-5,20210928,20210928
+TEMPESTX_20211012_concentrations.csv,concentrations,Measured gas concentration data,,-5,20211012,20211012
+TEMPESTX_20211025_concentrations.csv,concentrations,Measured gas concentration data,,-5,20211025,20211025
+TEMPESTX_20211109_concentrations.csv,concentrations,Measured gas concentration data,,-5,20211109,20211109
+TEMPESTX_20211123_concentrations.csv,concentrations,Measured gas concentration data,,-5,20211123,20211123
+TEMPESTX_20211207_concentrations.csv,concentrations,Measured gas concentration data,,-5,20211207,20211207
+TEMPESTX_20211221_concentrations.csv,concentrations,Measured gas concentration data,,-5,20211221,20211221
+TEMPESTX_20220110_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220110,20220110
+TEMPESTX_20220119_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220119,20220119
+TEMPESTX_20220208_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220208,20220208
+TEMPESTX_20220215_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220215,20220215
+TEMPESTX_20220301_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220301,20220301
+TEMPESTX_20220315_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220315,20220315
+TEMPESTX_20220401_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220401,20220401
+TEMPESTX_20220415_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220415,20220415
+TEMPESTX_20220426_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220426,20220426
+TEMPESTX_20220513_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220513,20220513
+TEMPESTX_20220620_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220620,20220620
+TEMPESTX_20220621_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220621,20220621
+TEMPESTX_20220622a_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220622,20220622
+TEMPESTX_20220622b_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220622,20220622
+TEMPESTX_20220622c_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220622,20220622
+TEMPESTX_20220622d_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220622,20220622
+TEMPESTX_20220623_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220623,20220623
+TEMPESTX_20220624_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220624,20220624
+TEMPESTX_20220629_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220629,20220629
+TEMPESTX_20220705_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220705,20220705
+TEMPESTX_20220707_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220707,20220707
+TEMPESTX_20220715_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220715,20220715
+TEMPESTX_20220721_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220721,20220721
+TEMPESTX_20220728_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220728,20220728
+TEMPESTX_20220804_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220804,20220804
+TEMPESTX_20220810_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220810,20220810
+TEMPESTX_20220816_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220816,20220816
+TEMPESTX_20220823_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220823,20220823
+TEMPESTX_20220912_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220912,20220912
+TEMPESTX_20220927_concentrations.csv,concentrations,Measured gas concentration data,,-5,20220927,20220927
+TEMPESTX_20221012_concentrations.csv,concentrations,Measured gas concentration data,,-5,20221012,20221012
+TEMPESTX_20221101_concentrations.csv,concentrations,Measured gas concentration data,,-5,20221101,20221101
+TEMPESTX_20221114_concentrations.csv,concentrations,Measured gas concentration data,,-5,20221114,20221114
+TEMPESTX_20221207_concentrations.csv,concentrations,Measured gas concentration data,,-5,20221207,20221207
+TEMPESTX_20221219_concentrations.csv,concentrations,Measured gas concentration data,,-5,20221219,20221219
+TEMPESTX_20230103_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230103,20230103
+TEMPESTX_20230118_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230118,20230118
+TEMPESTX_20230130_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230130,20230130
+TEMPESTX_20230213_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230213,20230213
+TEMPESTX_20230301_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230301,20230301
+TEMPESTX_20230320_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230320,20230320
+TEMPESTX_20230407_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230407,20230407
+TEMPESTX_20230419_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230419,20230419
+TEMPESTX_20230522_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230522,20230522
+TEMPESTX_20230604_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230604,20230604
+TEMPESTX_20230605_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230605,20230605
+TEMPESTX_20230606_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230606,20230606
+TEMPESTX_20230607_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230607,20230607
+TEMPESTX_20230607b_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230607,20230607
+TEMPESTX_20230608_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230608,20230608
+TEMPESTX_20230609_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230609,20230609
+TEMPESTX_20230627_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230627,20230627
+TEMPESTX_20230711_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230711,20230711
+TEMPESTX_20230726_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230726,20230726
+TEMPESTX_20230815_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230815,20230815
+TEMPESTX_20230829_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230829,20230829
+TEMPESTX_20230912_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230912,20230912
+TEMPESTX_20230925_concentrations.csv,concentrations,Measured gas concentration data,,-5,20230925,20230925
+TEMPESTX_20231011_concentrations.csv,concentrations,Measured gas concentration data,,-5,20231011,20231011
+TEMPESTX_20231024_concentrations.csv,concentrations,Measured gas concentration data,,-5,20231024,20231024
+TEMPESTX_20231114_concentrations.csv,concentrations,Measured gas concentration data,,-5,20231114,20231114
+TEMPESTX_20231130_concentrations.csv,concentrations,Measured gas concentration data,,-5,20231130,20231130
+TEMPESTX_20231211_concentrations.csv,concentrations,Measured gas concentration data,,-5,20231211,20231211
+TEMPESTX_20231228_concentrations.csv,concentrations,Measured gas concentration data,,-5,20231228,20231228
+TEMPESTX_20240108_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240108,20240108
+TEMPESTX_20240130_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240130,20240130
+TEMPESTX_20240216_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240216,20240216
+TEMPESTX_20240301_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240301,20240301
+TEMPESTX_20240320a_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240320,20240320
+TEMPESTX_20240401_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240401,20240401
+TEMPESTX_20240422_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240422,20240422
+TEMPESTX_20240610_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240610,20240610
+TEMPESTX_20240611a_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240611,20240611
+TEMPESTX_20240611b_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240611,20240611
+TEMPESTX_20240613_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240613,20240613
+TEMPESTX_20240613b_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240613,20240613
+TEMPESTX_20240614a_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240614,20240614
+TEMPESTX_20240614b_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240614,20240614
+TEMPESTX_20240617_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240617,20240617
+flmd.csv,,Soil respiration flux data,Soil respiration,-5,,
+README.md,,Soil respiration flux data,Soil respiration,-5,,
+TEMPEST_20240612a_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240612,20240612
+TEMPEST_20240612b_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240612,20240612
+TEMPESTX_20200415_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20200415,20200415
+TEMPESTX_20200507_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20200507,20200507
+TEMPESTX_20200521_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20200521,20200521
+TEMPESTX_20200603_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20200603,20200603
+TEMPESTX_20200619_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20200619,20200619
+TEMPESTX_20200708_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20200708,20200708
+TEMPESTX_20200825_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20200825,20200825
+TEMPESTX_20200911_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20200911,20200911
+TEMPESTX_20200916_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20200916,20200916
+TEMPESTX_20201008_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20201008,20201008
+TEMPESTX_20201015_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20201015,20201015
+TEMPESTX_20201028a_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20201028,20201028
+TEMPESTX_20201112_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20201112,20201112
+TEMPESTX_20201113_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20201113,20201113
+TEMPESTX_20201207_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20201207,20201207
+TEMPESTX_20201230_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20201230,20201230
+TEMPESTX_20210113_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210113,20210113
+TEMPESTX_20210129_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210129,20210129
+TEMPESTX_20210226_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210226,20210226
+TEMPESTX_20210308_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210308,20210308
+TEMPESTX_20210325_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210325,20210325
+TEMPESTX_20210406_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210406,20210406
+TEMPESTX_20210420_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210420,20210420
+TEMPESTX_20210430_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210430,20210430
+TEMPESTX_20210510_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210510,20210510
+TEMPESTX_20210525_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210525,20210525
+TEMPESTX_20210608_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210608,20210608
+TEMPESTX_20210621_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210621,20210621
+TEMPESTX_20210706_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210706,20210706
+TEMPESTX_20210719_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210719,20210719
+TEMPESTX_20210804_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210804,20210804
+TEMPESTX_20210819_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210819,20210819
+TEMPESTX_20210824_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210824,20210824
+TEMPESTX_20210825a_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210825,20210825
+TEMPESTX_20210825b_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210825,20210825
+TEMPESTX_20210825c_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210825,20210825
+TEMPESTX_20210825d_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210825,20210825
+TEMPESTX_20210826_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210826,20210826
+TEMPESTX_20210827_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210827,20210827
+TEMPESTX_20210830_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210830,20210830
+TEMPESTX_20210831_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210831,20210831
+TEMPESTX_20210902_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210902,20210902
+TEMPESTX_20210908_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210908,20210908
+TEMPESTX_20210909a_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210909,20210909
+TEMPESTX_20210909b_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210909,20210909
+TEMPESTX_20210909c_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210909,20210909
+TEMPESTX_20210909d_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210909,20210909
+TEMPESTX_20210910a_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210910,20210910
+TEMPESTX_20210911_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210911,20210911
+TEMPESTX_20210916_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210916,20210916
+TEMPESTX_20210928_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20210928,20210928
+TEMPESTX_20211012_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20211012,20211012
+TEMPESTX_20211025_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20211025,20211025
+TEMPESTX_20211109_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20211109,20211109
+TEMPESTX_20211123_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20211123,20211123
+TEMPESTX_20211207_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20211207,20211207
+TEMPESTX_20211221_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20211221,20211221
+TEMPESTX_20220110_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220110,20220110
+TEMPESTX_20220119_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220119,20220119
+TEMPESTX_20220208_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220208,20220208
+TEMPESTX_20220215_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220215,20220215
+TEMPESTX_20220301_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220301,20220301
+TEMPESTX_20220315_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220315,20220315
+TEMPESTX_20220401_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220401,20220401
+TEMPESTX_20220415_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220415,20220415
+TEMPESTX_20220426_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220426,20220426
+TEMPESTX_20220513_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220513,20220513
+TEMPESTX_20220620_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220620,20220620
+TEMPESTX_20220621_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220621,20220621
+TEMPESTX_20220622a_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220622,20220622
+TEMPESTX_20220622b_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220622,20220622
+TEMPESTX_20220622c_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220622,20220622
+TEMPESTX_20220622d_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220622,20220622
+TEMPESTX_20220623_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220623,20220623
+TEMPESTX_20220624_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220624,20220624
+TEMPESTX_20220629_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220629,20220629
+TEMPESTX_20220705_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220705,20220705
+TEMPESTX_20220707_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220707,20220707
+TEMPESTX_20220715_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220715,20220715
+TEMPESTX_20220721_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220721,20220721
+TEMPESTX_20220728_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220728,20220728
+TEMPESTX_20220804_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220804,20220804
+TEMPESTX_20220810_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220810,20220810
+TEMPESTX_20220816_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220816,20220816
+TEMPESTX_20220823_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220823,20220823
+TEMPESTX_20220912_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220912,20220912
+TEMPESTX_20220927_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20220927,20220927
+TEMPESTX_20221012_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20221012,20221012
+TEMPESTX_20221101_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20221101,20221101
+TEMPESTX_20221114_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20221114,20221114
+TEMPESTX_20221207_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20221207,20221207
+TEMPESTX_20221219_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20221219,20221219
+TEMPESTX_20230103_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230103,20230103
+TEMPESTX_20230118_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230118,20230118
+TEMPESTX_20230130_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230130,20230130
+TEMPESTX_20230213_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230213,20230213
+TEMPESTX_20230301_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230301,20230301
+TEMPESTX_20230320_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230320,20230320
+TEMPESTX_20230407_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230407,20230407
+TEMPESTX_20230419_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230419,20230419
+TEMPESTX_20230522_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230522,20230522
+TEMPESTX_20230604_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230604,20230604
+TEMPESTX_20230605_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230605,20230605
+TEMPESTX_20230606_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230606,20230606
+TEMPESTX_20230607_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230607,20230607
+TEMPESTX_20230607b_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230607,20230607
+TEMPESTX_20230608_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230608,20230608
+TEMPESTX_20230609_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230609,20230609
+TEMPESTX_20230627_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230627,20230627
+TEMPESTX_20230711_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230711,20230711
+TEMPESTX_20230726_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230726,20230726
+TEMPESTX_20230815_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230815,20230815
+TEMPESTX_20230829_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230829,20230829
+TEMPESTX_20230912_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230912,20230912
+TEMPESTX_20230925_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20230925,20230925
+TEMPESTX_20231011_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20231011,20231011
+TEMPESTX_20231024_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20231024,20231024
+TEMPESTX_20231114_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20231114,20231114
+TEMPESTX_20231130_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20231130,20231130
+TEMPESTX_20231211_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20231211,20231211
+TEMPESTX_20231228_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20231228,20231228
+TEMPESTX_20240108_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240108,20240108
+TEMPESTX_20240130_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240130,20240130
+TEMPESTX_20240216_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240216,20240216
+TEMPESTX_20240301_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240301,20240301
+TEMPESTX_20240320a_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240320,20240320
+TEMPESTX_20240401_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240401,20240401
+TEMPESTX_20240422_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240422,20240422
+TEMPESTX_20240610_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240610,20240610
+TEMPESTX_20240611a_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240611,20240611
+TEMPESTX_20240611b_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240611,20240611
+TEMPESTX_20240613_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240613,20240613
+TEMPESTX_20240613b_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240613,20240613
+TEMPESTX_20240614a_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240614,20240614
+TEMPESTX_20240614b_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240614,20240614
+TEMPESTX_20240617_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240617,20240617
