@@ -7,6 +7,9 @@ library(readr)
 library(tidyr)
 library(dplyr)
 
+FLMD_OUTPUT_FILE <- "ess-dive/flmd.csv"
+if(file.exists(FLMD_OUTPUT_FILE)) file.remove(FLMD_OUTPUT_FILE)
+
 # Read in flux data and reformat following soil respiration reporting format
 # https://github.com/ess-dive-community/essdive-soil-respiration/blob/main/instructions.md
 message("Processing flux data...")
@@ -93,6 +96,6 @@ flmd$File_Description[cmd] <- "Gas concentration metadata"
 flmd$Standard[cmd] <- ""
 flmd$UTC_Offset[cmd] <- NA
 
-write_csv(flmd, "ess-dive/flmd.csv", na = "")
+write_csv(flmd, file = FLMD_OUTPUT_FILE, na = "")
 
 message("All done!")

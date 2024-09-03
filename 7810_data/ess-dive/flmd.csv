@@ -139,7 +139,6 @@ TEMPESTX_20240613b_concentrations.csv,concentrations,Measured gas concentration 
 TEMPESTX_20240614a_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240614,20240614
 TEMPESTX_20240614b_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240614,20240614
 TEMPESTX_20240617_concentrations.csv,concentrations,Measured gas concentration data,,-5,20240617,20240617
-flmd.csv,,Soil respiration flux data,Soil respiration,-5,,
 README.md,,Soil respiration flux data,Soil respiration,-5,,
 TEMPEST_20240612a_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240612,20240612
 TEMPEST_20240612b_fluxes.csv,,Soil respiration flux data,Soil respiration,-5,20240612,20240612
