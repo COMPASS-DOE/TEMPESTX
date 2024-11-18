@@ -1,14 +1,21 @@
 # ess-dive
 
+Updated 2024-11-18
+
 ## Contents
 
 This folder holds the data formatted by ess-dive.R for ESS-DIVE submission.
-There are four parts:
+There are five parts:
 
 1. The file-level metadata `flmd.csv` file
 2. Soil respiration data files (prefixed `TEMPESTX_` and ending `_fluxes.csv`)
 3. Measurement collar metadata in `collar_metadata.csv`
 4. Raw concentration data files, and metadata, in the `concentrations/` folder 
+5. This README file
+
+## Processing code
+
+The code used to generate this figure is available here: https://github.com/COMPASS-DOE/TEMPESTX/7810_data/
 
 ## References:
 

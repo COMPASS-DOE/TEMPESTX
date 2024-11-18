@@ -1,5 +1,6 @@
 # Prep processed data for ESS-DIVE submission, following reporting formats
 # BBL September 2024
+# Run this AFTER process_7810.R
 
 if(basename(getwd()) != "7810_data") stop("Set working directory to 7810_data")
 
@@ -95,6 +96,11 @@ stopifnot(length(cmd) == 1)
 flmd$File_Description[cmd] <- "Gas concentration metadata"
 flmd$Standard[cmd] <- ""
 flmd$UTC_Offset[cmd] <- NA
+rdme <- grep("README", files)
+stopifnot(length(rdme) == 1)
+flmd$File_Description[rdme] <- "README file"
+flmd$Standard[rdme] <- "Markdown"
+flmd$UTC_Offset[rdme] <- NA
 
 write_csv(flmd, file = FLMD_OUTPUT_FILE, na = "")
 
