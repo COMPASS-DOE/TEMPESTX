@@ -10183,15 +10183,6 @@
 , 
 { "51":
 	{
-		"remark": "",
-		"reps":
-			{
-			}
-	}
-}
-, 
-{ "51a":
-	{
 		"remark": "Redo because auto chamber started during first measurement",
 		"reps":
 			{
