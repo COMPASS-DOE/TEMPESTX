@@ -1,6 +1,6 @@
 # ess-dive
 
-Updated 2024-11-18
+Updated 2024-12-02
 
 ## Contents
 
@@ -8,9 +8,9 @@ This folder holds the data formatted by ess-dive.R for ESS-DIVE submission.
 There are five parts:
 
 1. The file-level metadata `flmd.csv` file
-2. Soil respiration data files (prefixed `TEMPESTX_` and ending `_fluxes.csv`)
+2. Soil respiration flux data, as computed by the LI-COR Smart Chamber, combined into a single `fluxes.csv` file
 3. Measurement collar metadata in `collar_metadata.csv`
-4. Raw concentration data files, and metadata, in the `concentrations/` folder 
+4. Raw concentration data files, and metadata, in the `concentrations.zip` file 
 5. This README file
 
 ## Processing code
