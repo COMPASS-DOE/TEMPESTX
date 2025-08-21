@@ -1,0 +1,16 @@
+Column_or_Row_Name,Unit,Definition,Data_Type,Term_Type
+Chamber_ID,,Chamber number,numeric,column_header
+Plot,,Plot name,character,column_header
+Treatment,,Treatment applied (see Hopple et al. 2022),character,column_header
+Msmt_Var,,Measured variable (Rs=soil respiration; Rh=heterotrophic respiration),character,column_header
+Opaque,,Opaque chamber?,logical,column_header
+Plants_Removed,,Plants removed from chamber?,logical,column_header
+Instrument,,Measurement instrument used,character,column_header
+Longitude,Degrees north,Longitude of measurement,numeric,column_header
+Latitude,Degrees east,Latitude of measurement,numeric,column_header
+Altitude,m,Altitude of measurement,numeric,column_header
+Obs_Count,,Number of observations averaged for this measurement,numeric,column_header
+Collar_Depth,cm,Collar insertion depth into the soil,numeric,column_header
+Fan,,Fan in chamber?,logical,column_header
+Area,cm2,Ground area of chamber,numeric,column_header
+Volume,cm3,Volume of chamber,numeric,column_header
