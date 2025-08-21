@@ -1,0 +1,20 @@
+Column_or_Row_Name,Unit,Definition,Data_Type,Term_Type
+Chamber_ID,,Chamber identification label,character,column_header
+Timestamp_Begin,yyyy-mm-dd hh:mm:ss,Timestamp of start of measurement,POSIXct,column_header
+Timestamp_End,yyyy-mm-dd hh:mm:ss,Timestamp of end of measurement,POSIXct,column_header
+Flux_CO2,µmol/m2/s, Exponential fit computed CO2 flux,numeric,column_header
+Dry_CO2,ppmv,Mean CO2 concentration,numeric,column_header
+Flux_SE_CO2,µmol/m2/s,Standard error of the flux model fit,numeric,column_header
+CrvFit_CO2,,Type of model used to fit CO2 data,character,column_header
+R2_CO2,(unitless),R2 (coefficient of determination) for CO2 flux model,numeric,column_header
+CV_CO2,(unitless),Coefficient of variability of CO2 observations,numeric,column_header
+Tair_Amb,Degrees C,Ambient air temperature,numeric,column_header
+T5,Degrees C," Stevens probe soil temperature, degrees C ",numeric,column_header
+SM5,m3/m3," Stevens probe soil moisture, m3/m3 ",numeric,column_header
+EC5,S/m," Stevens probe soil electrical conductivity, S/m ",numeric,column_header
+Flux_CH4,nmol/m2/s, Exponential fit computed CH4 flux,numeric,column_header
+Dry_CH4,ppbv,Mean CH4 concentration,numeric,column_header
+Flux_SE_CH4,nmol/m2/s,Standard error of the flux model fit,numeric,column_header
+CrvFit_CH4,,Type of model used to fit CH4 data,character,column_header
+R2_CH4,(unitless),R2 (coefficient of determination) for CH4 flux model,numeric,column_header
+CV_CH4,(unitless),Coefficient of variability of CH4 observations,numeric,column_header
