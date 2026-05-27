@@ -1,0 +1,189 @@
+---
+title: "COMPASS_Synoptic_SoilFluxes_2025_CH4"
+author: "Stephanie J. Wilson"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    toc: true
+    number_sections: true
+---
+## Goals of this code: 
+1. Read in 8100 metadata file - with chamber ID, start time, V1-V4, and soil temperature
+2. Separate 8100 file into each flux and append the metadata to the flux information 
+3. Match with 7810 and 7820 data
+
+##Setup: 
+```{r Setup}
+library(dplyr)
+library(stringr)
+library(purrr)
+library(tibble)
+library(readr)
+```
+
+## Pull zipped 81x files into temporary data folder
+```{r, include=FALSE}
+
+# Create a temporary directory
+tmp_dir <- tempdir()
+
+# Get list of files inside the zip
+zip_contents <- unzip("8100_data/Test_FW_Autochamber_Data.zip", list = TRUE)
+
+# Keep only JSON files
+metadat_files <- zip_contents$Name[
+  grepl("81x$", zip_contents$Name, ignore.case = TRUE)&
+  grepl("FRESH", zip_contents$Name, ignore.case = TRUE)]
+
+# Extract only the JSON files
+unzip(
+  "8100_data/Test_FW_Autochamber_Data.zip",
+  files = metadat_files,
+  exdir = tmp_dir
+)
+
+# List extracted JSON files (full paths)
+file.list <- list.files(
+  path = tmp_dir,
+  pattern = "FRESH.*\\.81x$",
+  full.names = TRUE,
+  recursive = TRUE
+)
+
+head(file.list)
+
+
+```
+##Create separate files ina  temporary directory: 
+```{r}
+
+##Split file into multiple files, one for each chamber run and export to temporary directory 
+# Create a temporary directory
+# tmp_dir <- tempdir()
+tmp_dir # view temporary directory
+
+##Need to create a function that will read in all the autochamber files and separate them! 
+
+# Read file
+file <- "C:\\Users\\readz\\AppData\\Local\\Temp\\RtmpcTe0e3/Test_FW_Autochamber_Data/FW_Test_20260520_8100_Files/FRESHWATER/TEMPEST_FRESH-202611410.81x" 
+lines <- readLines(file)
+
+# create file counter
+file_counter <- 1
+current_chunk <- c()
+
+# go through every line and create a new chunk every time there is "LI-8100"
+for (line in lines) {
+  # If the line contains "8100", save the current chunk and start a new file
+  if (grepl("LI-8100", line)) {
+    # Write to file if it is not empty
+    if (length(current_chunk) > 0) {
+      output_name <- paste0(tmp_dir, "/8100_split_file_", file_counter, ".txt")
+      writeLines(current_chunk, output_name)
+      file_counter <- file_counter + 1
+      current_chunk <- c() # Reset chunk
+    }
+  }
+  
+  # append the line to the current chunk
+  current_chunk <- c(current_chunk, line)
+}
+
+# write the very last chunk of lines to a file
+if (length(current_chunk) > 0) {
+  output_name <- paste0(tmp_dir, "8100_split_file_", file_counter, ".txt")
+  writeLines(current_chunk, output_name)
+}
+
+```
+
+##Code from fluxfinder functions: 
+```{r}
+
+# List extracted JSON files (full paths)
+file.list <- list.files(
+  path = tmp_dir,
+  pattern = "txt$",
+  full.names = TRUE,
+  recursive = TRUE
+)
+
+
+# file <- "8100_split_data/8100_split_file_1.txt" 
+# model <- "LI-8100"
+
+ffi_read_LI78x0 <- function(file, model) {
+
+  dat_raw <- readLines(file)
+
+  # Make sure this is the desired model
+  file_model <- substr(dat_raw[1], 1, 7)
+  if(file_model != model) stop("This does not appear to be a ", model, " file!")
+
+  # Save the machine serial number
+  sn <- trimws(gsub("Serial Number:\t", "", dat_raw[4], fixed = TRUE))
+  # Parse the collar label from the header and use it to make a collar field
+  col <- trimws(gsub("Label:\t", "", dat_raw[9], fixed = TRUE))
+  # # Parse the timezone from the header and use it to make a TIMESTAMP field
+  # tz <- trimws(gsub("Timezone:\t", "", dat_raw[5], fixed = TRUE))
+
+  # These files have 30 header lines, the column names in line 31,
+  # and then the column units in line 7. We only want the names and then data
+  dat_raw <- dat_raw[31:(length(dat_raw)-24)]
+  writeLines(dat_raw, "cleaned_file.txt")
+
+  # Irritatingly, the units line can repeat in the file. Remove these instances
+  dat_raw <- dat_raw[grep("DATAU", dat_raw, invert = TRUE)]
+  # Double irritatingly, if there's no remark, the software writes \t\t, not
+  # \t""\t, causing a read error. Replace these instances
+  dat_raw <- gsub("\t\t", "\tnan\t", dat_raw, fixed = TRUE)
+
+  # Read the data, construct TIMESTAMP, add metadata,
+  # and remove unneeded LI-COR DATE and TIME columns
+  dat <- read.table(textConnection(dat_raw),
+                    na.strings = "nan",
+                    header = TRUE,
+                    stringsAsFactors = FALSE)
+
+  dat$TIMESTAMP <- lubridate::ymd_hms(paste(dat$Date, dat$Tcham)) ##, tz = tz 8100 data foesn't give the time zone 
+  # dat$TZ <- tz
+  dat$SN <- sn
+  dat$col <- col
+  dat$DATE <- dat$TIME <- NULL
+
+  # ffi_message(basename(file), ": read ", nrow(dat), " rows of ", sn, " data, ",
+  #             min(dat$TIMESTAMP), " to ", max(dat$TIMESTAMP), " ", col)
+
+  return(dat)
+}
+
+ffi_read_LI8100 <- function(file) {
+  ffi_read_LI78x0(file, "LI-8100")
+}
+
+alldat1 <- lapply(file.list, ffi_read_LI8100)
+
+# Combine into one data.table
+alldat <- data.table::rbindlist(alldat1, fill = TRUE)
+
+
+##Remove temporary directory
+unlink(tmp_dir, recursive = TRUE)
+
+```
+
+##Write out parsed 8100 data: 
+```{r}
+
+folder_name <- "8100_Processed_Data"
+
+if (!dir.exists(folder_name)) {
+  dir.create(folder_name)
+}
+
+#export as a csv to the folder that you want 
+write.csv(alldat, file="8100_Processed_Data/8100_processed_data_test1.csv", row.names = FALSE)           #Change file name
+
+
+```
+
