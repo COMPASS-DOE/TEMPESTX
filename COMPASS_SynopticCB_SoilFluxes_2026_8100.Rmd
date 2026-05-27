@@ -1,6 +1,6 @@
 ---
-title: "COMPASS_Synoptic_SoilFluxes_2025_CH4"
-author: "Stephanie J. Wilson"
+title: "COMPASS_Synoptic_SoilFluxes_2025_8100"
+author: "Zoe Read"
 date: "`r Sys.Date()`"
 output: 
   pdf_document:
@@ -11,6 +11,9 @@ output:
 1. Read in 8100 metadata file - with chamber ID, start time, V1-V4, and soil temperature
 2. Separate 8100 file into each flux and append the metadata to the flux information 
 3. Match with 7810 and 7820 data
+
+Need to add code to parse multiple 8100 files at once
+Add code to select the first and last timestamp (probably just with min and max?) and average V1-V4. 
 
 ##Setup: 
 ```{r Setup}
@@ -54,7 +57,7 @@ head(file.list)
 
 
 ```
-##Create separate files ina  temporary directory: 
+##Create separate files in a  temporary directory: 
 ```{r}
 
 ##Split file into multiple files, one for each chamber run and export to temporary directory 
@@ -65,7 +68,7 @@ tmp_dir # view temporary directory
 ##Need to create a function that will read in all the autochamber files and separate them! 
 
 # Read file
-file <- "C:\\Users\\readz\\AppData\\Local\\Temp\\RtmpcTe0e3/Test_FW_Autochamber_Data/FW_Test_20260520_8100_Files/FRESHWATER/TEMPEST_FRESH-202611410.81x" 
+file <- "C:\\Users\\readz\\AppData\\Local\\Temp\\RtmpG66gtm/Test_FW_Autochamber_Data/FW_Test_20260520_8100_Files/FRESHWATER/TEMPEST_FRESH-202611410.81x" 
 lines <- readLines(file)
 
 # create file counter
