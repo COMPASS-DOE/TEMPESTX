@@ -1,8 +1,11 @@
 ---
-title: "COMPASS_Synoptic_MacrophyteFluxes_2025_CO2"
-author: "Stephanie J. Wilson"
-date: "2025-11-26"
-output: pdf_document
+title: "COMPASS_Synoptic_MacrophyteFluxes_2025_CH4"
+author: "Zoe Read"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    toc: true
+    number_sections: true
 ---
 ## Set Up
 ```{r setup, include=FALSE}
@@ -17,10 +20,11 @@ library(ggpubr)
 library(lubridate)
 library(dplyr)
 library(tidyr)
+library(patchwork)
 ```
 
 ## Pull in Raw Datafiles
-```{r}
+```{r, echo = FALSE}
 
 # Create a temporary directory
 tmp_dir <- tempdir()
@@ -29,16 +33,16 @@ tmp_dir <- tempdir()
 zip_contents <- unzip("7810_data/concentrations/Test_FW_Autochamber_Data.zip", list = TRUE)
 
 # Keep only 8100 files from freshwater
-CO2_files <- zip_contents$Name[
+CH4_files <- zip_contents$Name[
   grepl("data$", zip_contents$Name, ignore.case = TRUE)& #8100 files
   grepl("TG10", zip_contents$Name, ignore.case = TRUE)] #Freshwater autochamber test
 
-CO2_files
+# CH4_files
 
 # Extract the 8100 files
 unzip(
   "7810_data/concentrations/Test_FW_Autochamber_Data.zip",
-  files = CO2_files,
+  files = CH4_files,
   exdir = tmp_dir
 )
 
@@ -59,7 +63,7 @@ alldat <- data.table::rbindlist(alldat1, fill=TRUE)
 ```
 
 ## Read in metadata file and match to raw data
-```{r}
+```{r, echo = FALSE, message=FALSE}
 
 #read in metadatfile
 md <- "Processed_Data/COMPASS_TEMPESTX_SoilFluxes_8100_Metadata_processed.csv"
@@ -80,16 +84,16 @@ metadat <- metadat %>%
     #Parses the string as "minutes:seconds" and extracts the total duration in seconds from the period
     total_seconds = as.numeric(ms(obs_length)), 
     #Add unique plot ID for each timestamp 
-    unique_ID = paste("Collar", label, "Timestamp", start_time, sep = "_"), 
+    unique_ID = paste("Collar", label, start_time, sep = "_"), 
     Vtotal_m3 = Vtotal/(100^3)) 
 
-head(metadat)  
+# head(metadat)  
 
 ```
 
 
 ## Match metadata to raw data
-```{r}
+```{r, echo = FALSE}
 
 #match the metadata to the concentration data 
 alldat$metadat_row <- ffi_metadata_match(
@@ -97,7 +101,7 @@ alldat$metadat_row <- ffi_metadata_match(
   start_dates = metadat$Date,
   start_times = metadat$Time,
   obs_lengths = metadat$total_seconds) 
-head(alldat)
+# head(alldat)
 
 #Set plot, temp, volume, etc. here 
 alldat$Plot <- metadat$unique_ID[alldat$metadat_row]
@@ -119,29 +123,29 @@ metadat$metadat_row <- seq_len(nrow(metadat))
 alldat <- alldat %>%
 filter(!is.na(metadat_row))
 
-#can remove any row that have NA's in the CO2 column 
+#can remove any row that have NA's in the CH4 column 
 alldat <- alldat %>%
-filter(!is.na(CO2))
+filter(!is.na(CH4))
 
 ```
 
 ## Calculate fluxes 
-```{r}
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
 #change the units
-alldat$CO2_umol <- ffi_ppm_to_umol(alldat$CO2, 
+alldat$CH4_nmol <- ffi_ppb_to_nmol(alldat$CH4, 
                                    volume = alldat$Volume # m3
                                    )    # degrees C
 #> Assuming atm = 101325 Pa
 #> Using R = 8.31446261815324 m3 Pa K-1 mol-1
 
-alldat$CO2_umol_m2 <- alldat$CO2_umol / 0.16
+alldat$CH4_nmol_m2 <- alldat$CH4_nmol / 0.16
 
 fluxes <- ffi_compute_fluxes(alldat,
                              group_column = "Plot", 
                              time_column = "TIMESTAMP", 
-                             gas_column = "CO2_umol_m2", 
+                             gas_column = "CH4_nmol_m2", 
                              dead_band = 10) #, c0_band = 5?
-head(fluxes)
+# head(fluxes)
 
 #take a look at the fluxes we calculated with R2 
 ggplot(fluxes, aes(Plot, lin_flux.estimate, color = lin_r.squared)) +
@@ -150,7 +154,7 @@ ggplot(fluxes, aes(Plot, lin_flux.estimate, color = lin_r.squared)) +
                    ymax = lin_flux.estimate+ lin_flux.std.error)) +
   scale_color_gradientn(colours = c("darkred",  "red", "white","lightblue", "darkblue"),
                         values = c(0, 0.5, 0.6, 0.7, 1)) +
-  ylab("CO2 flux (nmol/m2/s)")+ 
+  ylab("CH4 flux (nmol/m2/s)")+ 
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()) 
@@ -159,7 +163,7 @@ ggplot(fluxes, aes(Plot, lin_flux.estimate, color = lin_r.squared)) +
 fluxes_good <- as.data.frame(subset(fluxes, lin_r.squared >= .90, select = Plot:TIMESTAMP_max))
 fluxes_weird <- as.data.frame(subset(fluxes, lin_r.squared < .90, select = Plot:TIMESTAMP_max))
 
-#negative CO2 fluxes
+#negative CH4 fluxes
 fluxes_negative <- as.data.frame(subset(fluxes,  lin_flux.estimate < 0, select = Plot:TIMESTAMP_max))
 
 #find fluxes that represent the first and fourth quartile of the data 
@@ -175,22 +179,47 @@ tails <- rbind(fluxes_low, fluxes_high)
 ```
 
 ## Check the fluxes for which I changed the start time due to lags or ebullition (recorded in notes of metadata)
-```{r}
+```{r, echo=FALSE}
 
 tobechecked <- c()
 
 colnames <- c("Plot")
 
+#Empty list to store plots
+plot_list <- list()
+
 #Loop to run plots above 
 for(P in tobechecked){ 
   r1 <- subset(alldat, Plot == P)
-  p1 <- ggplot(r1, aes(TIMESTAMP, CO2)) + geom_point() + theme_classic() +
-  ylab(expression(paste( CO [2], " (ppm)"))) +
+  p1 <- ggplot(r1, aes(TIMESTAMP, CH4)) + geom_point() + theme_classic() +
+  ylab(expression(paste( CH [4], " (ppb)"))) +
   xlab("Time") + labs(title = P) + 
   geom_smooth(color="red")
-  print(p1)
+  
+  plot_list[[length(plot_list) + 1]] <- p1
 }
 
+### number of plots per page
+nrow_page <- 3
+ncol_page <- 2
+plots_per_page <- nrow_page * ncol_page
+
+# split plots into pages
+plot_pages <- split(
+  plot_list,
+  ceiling(seq_along(plot_list) / plots_per_page)
+)
+
+# print each page
+for(i in seq_along(plot_pages)) {
+  
+  print(
+    wrap_plots(plot_pages[[i]], 
+               nrow = nrow_page, 
+               ncol = ncol_page)
+  )
+  
+}
 #list of the ones that I changed and checked and looked good? 
 fixedplots <- c()
   
@@ -199,7 +228,7 @@ fixedplots <- c()
 
 
 ## Spot check a few fluxes with R2 > 0.9
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 ### pull a random sample of good fluxes to check and plot 
 good_plots <- unique(fluxes_good$Plot)
@@ -208,35 +237,89 @@ good_plots <- unique(fluxes_good$Plot)
 # set.seed(...) to guarantee reproducibility
 good_sample <- sample(good_plots, 5, replace=FALSE)
 
+#Empty list to store plots
+plot_list <- list()
+
 #Loop to run five random plots subset above 
 for(P in good_sample){ 
   r1 <- subset(alldat, Plot == P)
-  p1 <- ggplot(r1, aes(TIMESTAMP, CO2)) + geom_point() + theme_classic() +
-  ylab(expression(paste( CO [2], " (ppm)"))) +
+  
+  p1 <- ggplot(r1, aes(TIMESTAMP, CH4)) + geom_point() + theme_classic() +
+  ylab(expression(paste( CH [4], " (ppb)"))) +
   xlab("Time") + labs(title = P) + 
   geom_smooth(color="red")
-  print(p1)
-  }
+  
+  plot_list[[length(plot_list) + 1]] <- p1
+}
+
+### number of plots per page
+nrow_page <- 3
+ncol_page <- 2
+plots_per_page <- nrow_page * ncol_page
+
+# split plots into pages
+plot_pages <- split(
+  plot_list,
+  ceiling(seq_along(plot_list) / plots_per_page)
+)
+
+# print each page
+for(i in seq_along(plot_pages)) {
+  
+  print(
+    wrap_plots(plot_pages[[i]], 
+               nrow = nrow_page, 
+               ncol = ncol_page)
+  )
+  
+}
 
 ####################
 ```
 
 ## Take a look at the bad fluxes <0.9 
-# If a flux was started to early/late, change start time or Obs_length in metadata file and note n the note column
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# If a flux was started too early/late, change start time or Obs_length in metadata file and note n the note column
 
 ### pull out fluxes with R2 < 0.9 and put them in a list 
 bad_plots <- unique(fluxes_weird$Plot)
 
+#Empty list to store plots
+plot_list <- list()
+
 #Loop to run five random plots subset above 
 for(P in bad_plots){ 
   r1 <- subset(alldat, Plot == P)
-  p1 <- ggplot(r1, aes(TIMESTAMP, CO2)) + geom_point() + theme_classic() +
-  ylab(expression(paste( CO [2], " (ppm)"))) +
+  p1 <- ggplot(r1, aes(TIMESTAMP, CH4)) + geom_point() + theme_classic() +
+  ylab(expression(paste( CH [4], " (ppb)"))) +
   xlab("Time") + labs(title = P) + 
   geom_smooth(color="red")
-  print(p1)
-  }
+  
+  plot_list[[length(plot_list) + 1]] <- p1
+}
+
+### number of plots per page
+nrow_page <- 3
+ncol_page <- 2
+plots_per_page <- nrow_page * ncol_page
+
+# split plots into pages
+plot_pages <- split(
+  plot_list,
+  ceiling(seq_along(plot_list) / plots_per_page)
+)
+
+# print each page
+for(i in seq_along(plot_pages)) {
+  
+  print(
+    wrap_plots(plot_pages[[i]], 
+               nrow = nrow_page, 
+               ncol = ncol_page)
+  )
+  
+}
 
 ####################
 
@@ -272,20 +355,46 @@ for(P in bad_plots){
 ```
 
 ## Look at the really high or really low ones to see if there is a timing issue or something
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 ### pull out fluxes in the 5% and 95% tails to look at really high and really low 
 tail_plots <- unique(tails$Plot)
 
+#Empty list to store plots
+plot_list <- list()
+
 #Loop to run five random plots subset above 
 for(P in tail_plots){ 
   r1 <- subset(alldat, Plot == P)
-  p1 <- ggplot(r1, aes(TIMESTAMP, CO2)) + geom_point() + theme_classic() +
-  ylab(expression(paste( CO [2], " (ppm)"))) +
+  p1 <- ggplot(r1, aes(TIMESTAMP, CH4)) + geom_point() + theme_classic() +
+  ylab(expression(paste( CH [4], " (ppb)"))) +
   xlab("Time") + labs(title = P) + 
   geom_smooth(color="red")
-  print(p1)
-  }
+  
+  plot_list[[length(plot_list) + 1]] <- p1
+}
+
+### number of plots per page
+nrow_page <- 3
+ncol_page <- 2
+plots_per_page <- nrow_page * ncol_page
+
+# split plots into pages
+plot_pages <- split(
+  plot_list,
+  ceiling(seq_along(plot_list) / plots_per_page)
+)
+
+# print each page
+for(i in seq_along(plot_pages)) {
+  
+  print(
+    wrap_plots(plot_pages[[i]], 
+               nrow = nrow_page, 
+               ncol = ncol_page)
+  )
+  
+}
 
 #would be nice to put on the plot the flux estimate and if it is a high or low or something 
 ####################
@@ -293,46 +402,50 @@ for(P in tail_plots){
 
 ```
 
-## Look at the negative CO2 fluxes
-```{r, echo=FALSE}
-
-### pull out negative fluxes and put them in a list 
-neg_plots <- unique(fluxes_negative$Plot)
-
-#Loop to run five random plots subset above 
-for(P in neg_plots){ 
- r1 <- subset(alldat, Plot == P)
-  p1 <- ggplot(r1, aes(TIMESTAMP, CO2)) + geom_point() + theme_classic() +
-  ylab(expression(paste( CO [2], " (ppm)"))) +
-  xlab("Time") + labs(title = P) + 
-  geom_smooth(color="red")
-  print(p1)
-}
-
-####################Negative CO2 fluxes
-# add a flag for the fluxes that are negative for CO2 because they should be positive
-# fluxes <- fluxes %>%
-#     mutate(qaqc_flag = ifelse(is.na(qaqc_flag) & Plot %in% neg_plots, "negative CO2 flux, remove", qaqc_flag))
-
-```
 
 ## Plot all fluxes
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 #ffi_qaqc(fluxes, Plot, output_file = "qaqc.html", output_dir = getwd(), open_output = TRUE)
 
 ### pull a random sample of good fluxes to check and plot 
 all_plots <- unique(fluxes$Plot)
 
+#Empty list to store plots
+plot_list <- list()
+
 #Loop to run five random plots subset above 
 for(P in all_plots){ 
  r1 <- subset(alldat, Plot == P)
-  p1 <- ggplot(r1, aes(TIMESTAMP, CO2)) + geom_point() + theme_classic() +
-  ylab(expression(paste( CO [2], " (ppm)"))) +
+  p1 <- ggplot(r1, aes(TIMESTAMP, CH4)) + geom_point() + theme_classic() +
+  ylab(expression(paste( CH [4], " (ppb)"))) +
   xlab("Time") + labs(title = P) + 
   geom_smooth(color="red")
-  print(p1)
-  }
+  
+  plot_list[[length(plot_list) + 1]] <- p1
+}
+
+### number of plots per page
+nrow_page <- 3
+ncol_page <- 2
+plots_per_page <- nrow_page * ncol_page
+
+# split plots into pages
+plot_pages <- split(
+  plot_list,
+  ceiling(seq_along(plot_list) / plots_per_page)
+)
+
+# print each page
+for(i in seq_along(plot_pages)) {
+  
+  print(
+    wrap_plots(plot_pages[[i]], 
+               nrow = nrow_page, 
+               ncol = ncol_page)
+  )
+  
+}
 
 ####################
 
@@ -400,13 +513,13 @@ p3
 
 #make new columns with the plot; zone; replicate 
 IDs <- data.frame(do.call('rbind', strsplit(as.character(fluxes$Plot),'_',fixed=TRUE)))
-colnames(IDs) <- c("NA",  "label", "NA", "StartTime") #, "RHZ", "RHZ_Rep")
-head(IDs)
+colnames(IDs) <- c("NA",  "label", "StartTime")
+# head(IDs)
 
 #rejoin them to the dataframe
 allflux <- cbind(IDs, fluxes)
 
-##Add in notes from metadata - add this in when I fix the fluxes
+##Add in notes from metadata - add this in when we fix the fluxes
 # metadat$Notes <- NA
 # metadat_notes <- metadat[, c("label", "Notes")]
 # allflux_notes <- allflux %>% 
@@ -418,7 +531,7 @@ allflux <- cbind(IDs, fluxes)
 allflux$`NA`<- NULL
 allflux$`NA`<- NULL
 
-write.csv(allflux, file="Processed_Data/COMPASS_TEMPESTX_SoilFluxes_7810_CO2_processed.csv")           #Change file name
+write.csv(allflux, file="Processed_Data/COMPASS_TEMPESTX_SoilFluxes_7810_CH4_processed.csv")           #Change file name
 
 ```
 

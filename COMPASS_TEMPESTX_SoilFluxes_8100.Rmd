@@ -191,6 +191,18 @@ alldat <- data.table::rbindlist(alldat1, fill = TRUE)
 
 ```
 
+##Match the 8100 metadata to the collar metadata
+```{r}
+
+collar_metadata <- read.csv("design/collar_map.csv")
+collar_metadata$Collar <- as.character(collar_metadata$Collar)
+
+alldat_collars <- alldat %>% 
+   left_join(collar_metadata, by=c("label"="Collar"))
+ 
+```
+
+
 ##Write out parsed 8100 data: 
 ```{r}
 
@@ -201,8 +213,12 @@ if (!dir.exists(folder_name)) {
 }
 
 #export as a csv to the folder that you want 
-write.csv(alldat, file="Processed_Data/COMPASS_TEMPESTX_SoilFluxes_8100_Metadata_processed.csv", row.names = FALSE)           #Change file name
+write.csv(alldat_collars, file="Processed_Data/COMPASS_TEMPESTX_SoilFluxes_8100_Metadata_processed.csv", row.names = FALSE)           #Change file name
 
+```
+
+##Remove temporary directory
+```{r}
 ##Remove temporary directory
 unlink(tmp_dir, recursive = TRUE)
 ```
