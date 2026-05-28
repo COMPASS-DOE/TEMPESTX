@@ -22,6 +22,7 @@ library(stringr)
 library(purrr)
 library(tibble)
 library(readr)
+library(R.utils)
 ```
 
 ## Pull zipped 81x files into temporary data folder
@@ -55,8 +56,8 @@ file.list <- list.files(
 
 head(file.list)
 
-
 ```
+
 ##Create separate files in a  temporary directory: 
 ```{r}
 
@@ -67,9 +68,11 @@ tmp_dir # view temporary directory
 
 ##Need to create a function that will read in all the autochamber files and separate them! 
 
-# Read file
-file <- "C:\\Users\\readz\\AppData\\Local\\Temp\\RtmpG66gtm/Test_FW_Autochamber_Data/FW_Test_20260520_8100_Files/FRESHWATER/TEMPEST_FRESH-202611410.81x" 
-lines <- readLines(file)
+# # Read file
+# file <- "C:\\Users\\readz\\AppData\\Local\\Temp\\RtmpG66gtm/Test_FW_Autochamber_Data/FW_Test_20260520_8100_Files/FRESHWATER/TEMPEST_FRESH-202611410.81x" 
+
+for (i in file.list) { 
+  lines <- readLines(i)
 
 # create file counter
 file_counter <- 1
@@ -97,7 +100,7 @@ if (length(current_chunk) > 0) {
   output_name <- paste0(tmp_dir, "8100_split_file_", file_counter, ".txt")
   writeLines(current_chunk, output_name)
 }
-
+}
 ```
 
 ##Code from fluxfinder functions: 
@@ -112,9 +115,6 @@ file.list <- list.files(
 )
 
 
-# file <- "8100_split_data/8100_split_file_1.txt" 
-# model <- "LI-8100"
-
 ffi_read_LI78x0 <- function(file, model) {
 
   dat_raw <- readLines(file)
@@ -123,41 +123,66 @@ ffi_read_LI78x0 <- function(file, model) {
   file_model <- substr(dat_raw[1], 1, 7)
   if(file_model != model) stop("This does not appear to be a ", model, " file!")
 
+  # Save the observation number
+  obs <- trimws(gsub("Obs#:\t", "", dat_raw[7], fixed = TRUE))
+    # Save the observation length
+  obs_length <- trimws(gsub("Observation Length:\t", "", dat_raw[10], fixed = TRUE))
   # Save the machine serial number
   sn <- trimws(gsub("Serial Number:\t", "", dat_raw[4], fixed = TRUE))
-  # Parse the collar label from the header and use it to make a collar field
-  col <- trimws(gsub("Label:\t", "", dat_raw[9], fixed = TRUE))
-  # # Parse the timezone from the header and use it to make a TIMESTAMP field
-  # tz <- trimws(gsub("Timezone:\t", "", dat_raw[5], fixed = TRUE))
-
+  # Parse the collar label from the header
+  label <- trimws(gsub("Label:\t", "", dat_raw[9], fixed = TRUE))
+  # Parse the collar number from the header
+  chamber <- trimws(gsub("Chamber:\t", "", dat_raw[14], fixed = TRUE))
+  # Parse the chamber volume from the header
+  Vtotal <- trimws(gsub("Vtotal:\t", "", dat_raw[25], fixed = TRUE))
+  # Parse the dead band from the footer
+  DeadBand <- trimws(gsub("Dead Band:\t", "", dat_raw[length(dat_raw)-2], fixed = TRUE))
+  # Parse the closing time from the header and use it to make a collar field
+  TimeClosing <- trimws(gsub("TimeClosing:\t", "", dat_raw[length(dat_raw)-1], fixed = TRUE))
+  
   # These files have 30 header lines, the column names in line 31,
   # and then the column units in line 7. We only want the names and then data
-  dat_raw <- dat_raw[31:(length(dat_raw)-24)]
-  writeLines(dat_raw, "cleaned_file.txt")
+  total_lines = countLines(file)
+  lines_to_skip <- 30
+  lines_to_read <- total_lines - 30 - 25
+  
+  dat_read <- read.delim(
+    file = file,
+    skip = lines_to_skip,
+    nrows = lines_to_read,
+    sep = "\t",
+    header = TRUE)
 
-  # Irritatingly, the units line can repeat in the file. Remove these instances
-  dat_raw <- dat_raw[grep("DATAU", dat_raw, invert = TRUE)]
-  # Double irritatingly, if there's no remark, the software writes \t\t, not
-  # \t""\t, causing a read error. Replace these instances
-  dat_raw <- gsub("\t\t", "\tnan\t", dat_raw, fixed = TRUE)
+  # Get first and last timestamp
+  start_time <- first(dat_read$Date)
+  end_time <- last(dat_read$Date)
+  
+  # Get average of environmental variables (V1-V4)
+  V1_avg <- mean(dat_read$V1, na.rm = TRUE)
+  V2_avg <- mean(dat_read$V2, na.rm = TRUE)
+  V3_avg <- mean(dat_read$V3, na.rm = TRUE)
+  V4_avg <- mean(dat_read$V4, na.rm = TRUE)
+  
+  tmp <- data.frame(
+  SN = sn,
+  label = label,
+  chamber = chamber, 
+  Vtotal = Vtotal, 
+  obs_length = obs_length, 
+  DeadBand = DeadBand, 
+  TimeClosing = TimeClosing, 
+  start_time = start_time, 
+  end_time = end_time,
+  V1_avg = V1_avg,
+  V2_avg = V2_avg,
+  V3_avg = V3_avg,
+  V4_avg = V4_avg
+)
 
-  # Read the data, construct TIMESTAMP, add metadata,
-  # and remove unneeded LI-COR DATE and TIME columns
-  dat <- read.table(textConnection(dat_raw),
-                    na.strings = "nan",
-                    header = TRUE,
-                    stringsAsFactors = FALSE)
+  # ffi_message(basename(file), ": read ", nrow(dat_read), " rows of ", label, " data, ",
+  #             start_time, " to ", end_time)
 
-  dat$TIMESTAMP <- lubridate::ymd_hms(paste(dat$Date, dat$Tcham)) ##, tz = tz 8100 data foesn't give the time zone 
-  # dat$TZ <- tz
-  dat$SN <- sn
-  dat$col <- col
-  dat$DATE <- dat$TIME <- NULL
-
-  # ffi_message(basename(file), ": read ", nrow(dat), " rows of ", sn, " data, ",
-  #             min(dat$TIMESTAMP), " to ", max(dat$TIMESTAMP), " ", col)
-
-  return(dat)
+  return(tmp)
 }
 
 ffi_read_LI8100 <- function(file) {
@@ -169,9 +194,6 @@ alldat1 <- lapply(file.list, ffi_read_LI8100)
 # Combine into one data.table
 alldat <- data.table::rbindlist(alldat1, fill = TRUE)
 
-
-##Remove temporary directory
-unlink(tmp_dir, recursive = TRUE)
 
 ```
 
@@ -187,6 +209,7 @@ if (!dir.exists(folder_name)) {
 #export as a csv to the folder that you want 
 write.csv(alldat, file="8100_Processed_Data/8100_processed_data_test1.csv", row.names = FALSE)           #Change file name
 
-
+##Remove temporary directory
+unlink(tmp_dir, recursive = TRUE)
 ```
 
