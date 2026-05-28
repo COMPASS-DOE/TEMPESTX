@@ -460,8 +460,8 @@ p1 <- ggplot(fluxes, aes(lin_flux.estimate, rob_flux.estimate, color = Plot)) +
   geom_point(size=4) + geom_abline() + 
   theme_classic() + 
   labs(title = "A") + 
-  ylab(expression(paste( N[2]O, " Flux (nmol m"^-2* " s"^-1*") Robust Method"))) +
-  xlab(expression(paste( N[2]O, " Flux (nmol m"^-2* " s"^-1*") Linear Method"))) +
+  ylab(expression(paste( N[2], "O Flux (nmol m"^-2* " s"^-1*") Robust Method"))) +
+  xlab(expression(paste( N[2], "O Flux (nmol m"^-2* " s"^-1*") Linear Method"))) +
   guides(color = guide_legend(title = "Plot")) +
   theme(legend.position="none") +
   theme(axis.title.x = element_text(size=12), axis.text = element_text(size=12),
@@ -491,8 +491,8 @@ p3 <- ggplot(fluxes, aes(lin_flux.estimate, HM81_flux.estimate, color = lin_r.sq
   theme_classic() + 
   #xlim(0,50) + #ylim(0,50) +
   labs(title = "C") + 
-  ylab(expression(paste( N[2]O, " Flux (nmol m"^-2* " s"^-1*") HM1981 Method"))) +
-  xlab(expression(paste( N[2]O, " Flux (nmol m"^-2* " s"^-1*") Linear Method"))) +
+  ylab(expression(paste( N[2], "O Flux (nmol m"^-2* " s"^-1*") HM1981 Method"))) +
+  xlab(expression(paste( N[2], "O Flux (nmol m"^-2* " s"^-1*") Linear Method"))) +
   guides(color = guide_legend(title = "Plot")) + 
   theme(legend.position="right") +
   theme(axis.title.x = element_text(size=12), axis.text = element_text(size=12),
@@ -531,7 +531,7 @@ allflux <- cbind(IDs, fluxes)
 allflux$`NA`<- NULL
 allflux$`NA`<- NULL
 
-write.csv(allflux, file="Processed_Data/COMPASS_TEMPESTX_SoilFluxes_7810_N2O_processed.csv")           #Change file name
+write.csv(allflux, file="Processed_Data/COMPASS_TEMPESTX_SoilFluxes_7820_N2O_processed.csv")           #Change file name
 
 ```
 
