@@ -43,7 +43,6 @@ vignettes/*.pdf
 
 # Outputs
 *.png
-*.pdf
 *.html
 
 *.dcf
