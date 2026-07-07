@@ -21,6 +21,7 @@ library(lubridate)
 library(dplyr)
 library(tidyr)
 library(patchwork)
+library(hms)
 ```
 
 ## Pull in Raw Datafiles
@@ -60,15 +61,29 @@ head(file.list)
 
 #Read in all the datafiles 
 
+#Control 7810: TG10-01712
+#Saltwater 7810: TG10-01746
+#Freshwater 7810: TG10-01725
+ctrl_file <- file.list[grepl("TG10-01712", file.list)]
+alldat_ctrl <- ffi_read_LI7810(ctrl_file)
+
+fw_file <- file.list[grepl("TG10-01725", file.list)]
+alldat_fw <- ffi_read_LI7810(fw_file)
+
+sw_file <- file.list[grepl("TG10-01746", file.list)]
+alldat_sw <- ffi_read_LI7810(sw_file)
+
+
+#combine all the files into one 
 #alldat1 <- lapply(file.list, ffi_read_LI7810)
 #alldat <- data.table::rbindlist(alldat1, fill=TRUE)
 
 #Read in just the first file: 
-alldat <- ffi_read_LI7810(file.list[2]) #freshwater 
+#alldat <- ffi_read_LI7810(file.list[2]) #freshwater 
 
 ```
 
-## Read in metadata file and match to raw data
+## Read in  metadata file and separate by plot
 ```{r, echo = FALSE, message=FALSE}
 
 #read in metadatfile
@@ -78,10 +93,41 @@ md <- (here::here("Processed_Data", "COMPASS_TEMPESTX_SoilFluxes_8100_Metadata_p
 #metadat <- read_excel(md)
 metadat <- read.csv(md) 
 
-##Make it so the plot column is unique for each run (Plot_obs#?)
 
-##Separate Date and Time
-metadat <- metadat %>%
+#Control metadata 
+ctrl_metadat <- metadat %>%
+  filter(Plot == "Control") %>%
+  mutate(
+    # Ensure it's a date-time object
+    start_time = ymd_hms(start_time), 
+    # Extract date
+    Date = as.character(date(start_time)),  
+      #Date = as.Date(Date , format = "%Y-%m-%d"),
+    # Extract time
+    Time = format(start_time, "%H:%M:%S"),
+    #Parses the string as "minutes:seconds" and extracts the total duration in seconds from the period
+    total_seconds = as.numeric(ms(obs_length)), 
+    #Add unique plot ID for each timestamp 
+    unique_ID = paste("Collar", label, start_time, sep = "_"), 
+    Vtotal_m3 = Vtotal/(100^3)) 
+
+#make some changes to the start times??? 
+ctrl_metadat <- ctrl_metadat %>%
+  mutate(Time = as_hms(Time)) %>%
+  mutate(
+    Time = if_else(label %in% c(15, 16),
+      Time - 10,
+      Time) ) %>%
+  mutate(Time = as.character(Time)) %>%
+  mutate(total_seconds = as.numeric(total_seconds)) %>%
+  mutate(total_seconds = if_else(label %in% c(15, 16),
+      total_seconds - 30,
+      total_seconds) )
+
+
+#freshwater metadata 
+fw_metadat <- metadat %>%
+  filter(Plot == "Fresh") %>%
   mutate(
     # Ensure it's a date-time object
     start_time = ymd_hms(start_time), 
@@ -95,47 +141,151 @@ metadat <- metadat %>%
     unique_ID = paste("Collar", label, start_time, sep = "_"), 
     Vtotal_m3 = Vtotal/(100^3)) 
 
-# head(metadat)  
+#saltwater metadata 
+sw_metadat <- metadat %>%
+  filter(Plot == "Salt") %>%
+  mutate(
+    # Ensure it's a date-time object
+    start_time = ymd_hms(start_time), 
+    # Extract date
+    Date = as.character(date(start_time)),         
+    # Extract time
+    Time = format(start_time, "%H:%M:%S"), 
+    #Parses the string as "minutes:seconds" and extracts the total duration in seconds from the period
+    total_seconds = as.numeric(ms(obs_length)), 
+    #Add unique plot ID for each timestamp 
+    unique_ID = paste("Collar", label, start_time, sep = "_"), 
+    Vtotal_m3 = Vtotal/(100^3)) 
+
 
 ```
 
+######## Control MATCHING ##############
 
-## Match metadata to raw data
+## Match Control metadata to raw data
 ```{r, echo = FALSE}
 
 #match the metadata to the concentration data 
-alldat$metadat_row <- ffi_metadata_match(
-  data_timestamps = alldat$TIMESTAMP,
-  start_dates = metadat$Date,
-  start_times = metadat$Time,
-  obs_lengths = metadat$total_seconds) 
+alldat_ctrl$metadat_row <- ffi_metadata_match(
+  data_timestamps = alldat_ctrl$TIMESTAMP,
+  start_dates = ctrl_metadat$Date,
+  start_times = ctrl_metadat$Time,
+  obs_lengths = ctrl_metadat$total_seconds) 
 # head(alldat)
 
 #Set plot, temp, volume, etc. here 
-alldat$Plot <- metadat$unique_ID[alldat$metadat_row]
-alldat$Volume <- metadat$Vtotal_m3[alldat$metadat_row]
-alldat$final_temp <- metadat$Tcham[alldat$metadat_row] #from 8100 file
-# alldat$L1_Temp <- metadat_L1temp$wx_tempavg15[alldat$metadat_row] #calculate  temp for the measurement time from L1
-# alldat$Site <- metadat$Site[alldat$metadat_row]
-metadat$metadat_row <- seq_len(nrow(metadat))
+alldat_ctrl$Plot <- ctrl_metadat$unique_ID[alldat_ctrl$metadat_row]
+alldat_ctrl$Volume <- ctrl_metadat$Vtotal_m3[alldat_ctrl$metadat_row]
+alldat_ctrl$final_temp <- ctrl_metadat$Tcham[alldat_ctrl$metadat_row] #from 8100 file
+alldat_ctrl$V2_avg <- ctrl_metadat$V2_avg[alldat_ctrl$metadat_row] 
+alldat_ctrl$V3_avg <- ctrl_metadat$V3_avg[alldat_ctrl$metadat_row] 
+alldat_ctrl$V4_avg <- ctrl_metadat$V4_avg[alldat_ctrl$metadat_row] 
 
-#We need one more line that creates a column for final temp and takes the L1 data but if there isn't L1 data it will pull in another datatype 
-# in this case we will use the by hand data i guess? but we could look to using some sort of NOAA dataset.... that we would need to match 
+ctrl_metadat$metadat_row <- seq_len(nrow(ctrl_metadat))
 
-# alldat$Hand_Temp <- as.numeric(alldat$Hand_Temp)
-# 
-# alldat <- alldat %>%
-#   mutate(final_temp = coalesce(L1_Temp, Hand_Temp))
+
+### Need to deal with weird temperatures - probably take the one from the closest reasonable measurement 
 
 #remove the rows that don't match to metadata 
-alldat <- alldat %>%
+alldat_ctrl <- alldat_ctrl %>%
 filter(!is.na(metadat_row))
 
 #can remove any row that have NA's in the CO2 column 
-alldat <- alldat %>%
+alldat_ctrl <- alldat_ctrl %>%
 filter(!is.na(CO2))
 
 ```
+
+
+######## FRESHWATER MATCHING ##############
+
+## Match Fresh metadata to raw data
+```{r, echo = FALSE}
+
+fresh_alldat <- alldat_fw
+
+#match the metadata to the concentration data 
+fresh_alldat$metadat_row <- ffi_metadata_match(
+  data_timestamps = fresh_alldat$TIMESTAMP,
+  start_dates = fw_metadat$Date,
+  start_times = fw_metadat$Time,
+  obs_lengths = fw_metadat$total_seconds) 
+# head(alldat)
+
+#Set plot, temp, volume, etc. here 
+fresh_alldat$Plot <- fw_metadat$unique_ID[fresh_alldat$metadat_row]
+fresh_alldat$Volume <- fw_metadat$Vtotal_m3[fresh_alldat$metadat_row]
+fresh_alldat$final_temp <- fw_metadat$Tcham[fresh_alldat$metadat_row] #from 8100 file
+fresh_alldat$V2_avg <- fw_metadat$V2_avg[fresh_alldat$metadat_row] 
+fresh_alldat$V3_avg <- fw_metadat$V3_avg[fresh_alldat$metadat_row] 
+fresh_alldat$V4_avg <- fw_metadat$V4_avg[fresh_alldat$metadat_row] 
+
+fw_metadat$metadat_row <- seq_len(nrow(fw_metadat))
+
+
+### Need to deal with weird temperatures - probably take the one from the closest reasonable measurement 
+
+#remove the rows that don't match to metadata 
+fresh_alldat <- fresh_alldat %>%
+filter(!is.na(metadat_row))
+
+#can remove any row that have NA's in the CO2 column 
+fresh_alldat <- fresh_alldat %>%
+filter(!is.na(CO2))
+
+
+```
+
+
+############### Saltwater Plot ############################
+
+## Match Salt metadata to raw data
+```{r, echo = FALSE}
+
+#
+salt_alldat <- alldat
+
+#match the metadata to the concentration data 
+salt_alldat$metadat_row <- ffi_metadata_match(
+  data_timestamps = salt_alldat$TIMESTAMP,
+  start_dates = salt_metadat$Date,
+  start_times = salt_metadat$Time,
+  obs_lengths = salt_metadat$total_seconds) 
+# head(alldat)
+
+#Set plot, temp, volume, etc. here 
+salt_alldat$Plot <- salt_metadat$unique_ID[salt_alldat$metadat_row]
+salt_alldat$Volume <- salt_metadat$Vtotal_m3[salt_alldat$metadat_row]
+salt_alldat$final_temp <- salt_metadat$Tcham[salt_alldat$metadat_row] #from 8100 file
+salt_alldat$V2_avg <- salt_metadat$V2_avg[salt_alldat$metadat_row] 
+salt_alldat$V3_avg <- salt_metadat$V3_avg[salt_alldat$metadat_row] 
+salt_alldat$V4_avg <- salt_metadat$V4_avg[salt_alldat$metadat_row] 
+
+salt_metadat$metadat_row <- seq_len(nrow(salt_metadat))
+
+
+### Need to deal with weird temperatures - probably take the one from the closest reasonable measurement 
+
+#remove the rows that don't match to metadata 
+salt_alldat <- salt_alldat %>%
+filter(!is.na(metadat_row))
+
+#can remove any row that have NA's in the CO2 column 
+salt_alldat <- salt_alldat %>%
+filter(!is.na(CO2))
+
+```
+
+
+## Combine all the matched data back into one dataframe 
+```{r}
+
+alldat <-  alldat_ctrl #bind_rows(ctrl_alldat, fresh_alldat, salt_alldat)
+
+
+
+```
+
 
 ## Calculate fluxes 
 ```{r, echo = FALSE, message = FALSE, warning=FALSE}
@@ -218,7 +368,7 @@ good_plots <- unique(fluxes_good$Plot)
 
 # take a random sample (FALSE so we don't get the same plot twice)
 # set.seed(...) to guarantee reproducibility
-good_sample <- sample(fluxes_good, 5, replace=FALSE)
+good_sample <- sample(good_plots, 5, replace=FALSE)
 
 #Empty list to store plots
 plot_list <- list()
@@ -260,6 +410,7 @@ for(i in seq_along(plot_pages)) {
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 # If a flux was started too early/late, change start time or Obs_length in metadata file and note n the note column
+plot_list <- list()
 
 ### pull out fluxes with R2 < 0.9 and put them in a list 
 bad_plots <- unique(fluxes_weird$Plot)

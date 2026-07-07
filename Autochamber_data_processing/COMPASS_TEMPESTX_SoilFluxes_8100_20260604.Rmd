@@ -31,6 +31,7 @@ tmp_dir <- tempdir()
 # Get list of files inside the zip
 #zip_contents <- unzip("8100_data/Test_FW_Autochamber_Data.zip", list = TRUE)
 zip_contents <- unzip(here::here("8100_data", "Autochamber_DataDownload_20260604.zip"), list = TRUE)
+#zip_contents <- unzip("8100_data/Autochamber_DataDownload_20260604.zip", list = TRUE)
 
 
 # Keep only 8100 files 
@@ -65,11 +66,13 @@ tmp_dir # view temporary directory
 
 ##Need to create a function that will read in all the autochamber files and separate them! 
 
+file_counter <- 1
+
 for (i in file.list) { 
   lines <- readLines(i)
 
 # create file counter
-file_counter <- 1
+#file_counter <- 1
 current_chunk <- c()
 
 # go through every line and create a new chunk every time there is "LI-8100"
@@ -91,11 +94,12 @@ for (line in lines) {
 
 # write the very last chunk of lines to a file
 if (length(current_chunk) > 0) {
-  output_name <- paste0(tmp_dir, "8100_split_file_", file_counter, ".txt")
+  output_name <- paste0(tmp_dir, "/8100_split_file_", file_counter, ".txt")
   writeLines(current_chunk, output_name)
 }
 }
 ```
+
 
 ##Code from fluxfinder functions: 
 ```{r}
@@ -186,6 +190,15 @@ ffi_read_LI8100 <- function(file) {
   ffi_read_LI78x0(file, "LI-8100")
 }
 
+#Don't process any files that don't have the LI-800 and were just cut at the end 
+file.list <- file.list[sapply(file.list, function(f) {
+  x <- readLines(f, n = 20, warn = FALSE)
+  first <- x[nzchar(x)][1]
+
+  !is.na(first) && grepl("^LI-8100", first)
+})]
+
+#read in the file in the list
 alldat1 <- lapply(file.list, ffi_read_LI8100)
 
 # Combine into one data.table
@@ -200,6 +213,19 @@ alldat <- data.table::rbindlist(alldat1, fill = TRUE)
 #collar_metadata <- read.csv("design/collar_map.csv")
 collar_metadata <- read.csv(here::here("design", "collar_map.csv"))
 collar_metadata$Collar <- as.character(collar_metadata$Collar)
+
+#add in the new collars that we added with UDel 
+new_rows <- data.frame(
+  Collar = as.character(c(49, 50, 51, 52)),
+  Plot = c("Control", "Salt", "Salt", "Salt"),
+  Group = c(NA, NA, NA, NA),
+  Treatment = c("Control", "Control", "Control", "Control"),
+  LI8100A_Port = c(NA, NA, NA, NA)
+)
+
+collar_metadata <- bind_rows(collar_metadata, new_rows)
+
+
 
 alldat_collars <- alldat %>% 
    left_join(collar_metadata, by=c("label"="Collar"))
