@@ -13,24 +13,36 @@ library(readr)
 # and flux files (just the Smart Chamber flux calculations)
 
 files <- list.files("./raw/", pattern = "\\.json$", recursive = TRUE, full.names = TRUE)
+#files <- files[grep("2026", files)]
 
 problem_files <- 0
 for(f in files) {
   message(f)
   outfn <- gsub("\\.json$", "", basename(f))
   
-  tryCatch({
+ # tryCatch({
     x <- ffi_read_LIsmartchamber(f, concentrations = FALSE)
     write_csv(x, file.path("fluxes", paste0(outfn, "_fluxes.csv")))
+    
+    # Check: all the collar labels should be numbers
+    collars <- sort(unique(x$label))
+    suppressWarnings({
+      collar_numbers <- as.numeric(collars)
+    })
+    if(any(is.na(collar_numbers))) {
+      stop("There are bad collar labels: ", 
+           paste(collars[is.na(collar_numbers)], collapse = ", "))  
+    } 
+    
     x <- ffi_read_LIsmartchamber(f, concentrations = TRUE)
     write_csv(x, file.path("concentrations", paste0(outfn, "_concentrations.csv")))
-  },
-    error = function(e) {
-      message("\tHad a problem!")
-      warning("Had a problem with ", f, ": ", e)
-      problem_files <<- problem_files + 1
-    })
-}
+  }#,
+#     error = function(e) {
+#       message("\tHad a problem!")
+#       warning("Had a problem with ", f, ": ", e)
+#       problem_files <<- problem_files + 1
+#     })
+# }
 
 if(problem_files > 0) {
   message("\n\n*** HAD A PROBLEM processing ", problem_files, " files!")
@@ -44,10 +56,14 @@ fluxes <- lapply(flux_files, read_csv, show_col_types = FALSE)
 fluxes_df <- do.call("rbind", fluxes)
 
 library(ggplot2)
-p_co2 <- ggplot(fluxes_df, aes(TIMESTAMP, co2_F_o, group = label)) + geom_line() + ylim(c(0, 100))
+p_co2 <- ggplot(fluxes_df, aes(TIMESTAMP, co2_F_o, group = label)) + 
+  geom_line() + 
+  coord_cartesian(ylim = c(0, 100))
 print(p_co2)
 
-p_ch4 <- ggplot(fluxes_df, aes(TIMESTAMP, ch4_F_o, group = label)) + geom_line() + ylim(c(-1, 10))
+p_ch4 <- ggplot(fluxes_df, aes(TIMESTAMP, ch4_F_o, group = label)) + 
+  geom_line() + 
+  coord_cartesian(ylim = c(-1, 10))
 print(p_ch4)
 
 message("All done.")
