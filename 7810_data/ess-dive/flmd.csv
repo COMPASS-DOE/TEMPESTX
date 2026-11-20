@@ -1,7 +1,7 @@
 File_Name,File_Path,File_Description,Standard,UTC_Offset,Date_Start,Date_End
+collar_metadata_dd.csv,,,,,,
 collar_metadata.csv,,Soil respiration collar metadata,,,,
-collar_metadata_dd.csv,,Data dictionary for collar_metadata.csv,,,,
-fluxes_dd.csv,,Data dictionary for fluxes.csv,ESS-DIVE Soil Respiration v1,,,
-concentrations.zip,,Measured gas concentration data and metadata,,-5,20200415,20240617
-fluxes.csv,,Computed greenhouse gas fluxes,Soil respiration,-5,20200415,20240617
+concentrations.zip,,Measured gas concentration data,,-5,20200415,20261103
+fluxes_dd.csv,,Computed greenhouse gas fluxes,Soil respiration,-5,20200415,20261103
+fluxes.csv,,Computed greenhouse gas fluxes,Soil respiration,-5,20200415,20261103
 README.md,,README file,Markdown,,,

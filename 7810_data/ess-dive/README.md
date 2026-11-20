@@ -1,6 +1,6 @@
 # ess-dive
 
-Updated 2024-12-02
+Updated 2026-11-20
 
 ## Contents
 
@@ -21,7 +21,7 @@ The code used to generate this figure is available here: https://github.com/COMP
 
 **Soil respiration reporting format**
 
-https://github.com/ess-dive-community/essdive-soil-respiration/
+https://github.com/ess-dive-workspace/essdive-soil-respiration
 
 Bond-Lamberty, B., Christianson, D. S., Crystal-Ornelas, R., Mathes, K., and Pennington,
 S. C.: A reporting format for field measurements of soil respiration, 
@@ -29,4 +29,4 @@ Ecol. Inform., 62, 101280, 2021.
 
 **File level metadata**
 
-https://github.com/ess-dive-community/essdive-file-level-metadata
+https://github.com/ess-dive-workspace/essdive-file-level-metadata

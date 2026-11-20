@@ -98,13 +98,13 @@ flmd$UTC_Offset[concs] <- "-5"
 flmd$Date_Start[concs] <- substr(first_ts, 1, 8)
 flmd$Date_End[concs] <- substr(last_ts, 1, 8)
 
-md <- grep("collar_metadata", files)
+md <- grep("collar_metadata\\.csv", files)
 stopifnot(length(md) == 1)
 flmd$File_Description[md] <- "Soil respiration collar metadata"
 
-cmd <- grep("concentrations_metadata", files)
-stopifnot(length(cmd) == 1)
-flmd$File_Description[cmd] <- "Gas concentration metadata"
+# cmd <- grep("concentrations_metadata", files)
+# stopifnot(length(cmd) == 1)
+# flmd$File_Description[cmd] <- "Gas concentration metadata"
 
 rdme <- grep("README", files)
 stopifnot(length(rdme) == 1)
